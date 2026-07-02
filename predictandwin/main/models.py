@@ -6,11 +6,12 @@ from django.contrib.auth.models import (
 )
 
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
 
 
 # Custom User Manager
 class CustomUserManager(BaseUserManager):
-
     def create_user(
         self,
         username,
@@ -19,27 +20,20 @@ class CustomUserManager(BaseUserManager):
         password=None,
         **extra_fields
     ):
-
         if not email:
             raise ValueError(
                 "Email is required."
             )
-
         email = self.normalize_email(email)
-
         user = self.model(
             username=username,
             full_name=full_name,
             email=email,
             **extra_fields
         )
-
         user.set_password(password)
-
         user.full_clean()
-
         user.save(using=self._db)
-
         return user
 
     def create_superuser(
@@ -74,48 +68,37 @@ class CustomUserManager(BaseUserManager):
         )
 
 class User(AbstractBaseUser, PermissionsMixin):
-
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False
     )
-
     username = models.CharField(
         max_length=50,
         unique=True
     )
-
     full_name = models.CharField(
         max_length=150
     )
-
     email = models.EmailField(
         unique=True
     )
-
     email_verified = models.BooleanField(
         default=False
     )
-
     points = models.PositiveIntegerField(
         default=0
     )
-
     is_active = models.BooleanField(
         default=True
     )
-
     is_staff = models.BooleanField(
         default=False
     )
-
     created_at = models.DateTimeField(
         auto_now_add=True
     )
-
     objects = CustomUserManager()
-
     USERNAME_FIELD = "username"
 
     REQUIRED_FIELDS = [
@@ -134,29 +117,28 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 # OTP Model
 class OTP(models.Model):
-
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False
     )
-
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
-
+    email = models.EmailField()
     code = models.CharField(
         max_length=6
     )
-
-    is_used = models.BooleanField(
-        default=False
-    )
-
     created_at = models.DateTimeField(
         auto_now_add=True
     )
 
+    def is_expired(self):
+        expiry_time = self.created_at + timedelta(minutes=5)
+        return timezone.now() > expiry_time
+
     def __str__(self):
-        return f"{self.user.username} - {self.code}"
+        return f"{self.email} - {self.code}"

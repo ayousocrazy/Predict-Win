@@ -1,14 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-
 from .models import User, OTP
-
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-
     model = User
-
     list_display = (
         "username",
         "full_name",
@@ -19,31 +15,25 @@ class CustomUserAdmin(UserAdmin):
         "is_active",
         "created_at",
     )
-
     list_filter = (
         "email_verified",
         "is_staff",
         "is_active",
     )
-
     search_fields = (
         "username",
         "full_name",
         "email",
     )
-
     ordering = (
         "-created_at",
     )
-
     readonly_fields = (
         "id",
         "created_at",
         "last_login",
     )
-
     fieldsets = (
-
         ("Account Information", {
             "fields": (
                 "id",
@@ -51,26 +41,22 @@ class CustomUserAdmin(UserAdmin):
                 "password",
             )
         }),
-
         ("Personal Information", {
             "fields": (
                 "full_name",
                 "email",
             )
         }),
-
         ("Verification", {
             "fields": (
                 "email_verified",
             )
         }),
-
         ("Points", {
             "fields": (
                 "points",
             )
         }),
-
         ("Permissions", {
             "fields": (
                 "is_active",
@@ -80,7 +66,6 @@ class CustomUserAdmin(UserAdmin):
                 "user_permissions",
             )
         }),
-
         ("Important Dates", {
             "fields": (
                 "last_login",
@@ -88,13 +73,11 @@ class CustomUserAdmin(UserAdmin):
             )
         }),
     )
-
     add_fieldsets = (
         (None, {
             "classes": (
                 "wide",
             ),
-
             "fields": (
                 "username",
                 "full_name",
@@ -107,27 +90,17 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-
 @admin.register(OTP)
 class OTPAdmin(admin.ModelAdmin):
-
     list_display = (
-        "user",
+        "email",
         "code",
-        "is_used",
         "created_at",
     )
-
-    list_filter = (
-        "is_used",
-    )
-
     search_fields = (
-        "user__username",
-        "user__email",
+        "email",
         "code",
     )
-
     ordering = (
         "-created_at",
     )
