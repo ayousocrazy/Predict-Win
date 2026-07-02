@@ -69,10 +69,10 @@
                 aria-expanded="false"
                 aria-controls="pwProfileMenu">
           <span class="pw-avatar" aria-hidden="true">
-            {% if user.first_name %}{{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}{% else %}RK{% endif %}
+            {% if user.initials %}{{ user.initials }}{% else %}U{% endif %}
           </span>
           <span class="pw-profile__name">
-            {% if user.get_full_name %}{{ user.get_full_name }}{% else %}Ram Karan{% endif %}
+            {% if user.full_name %}{{ user.full_name }}{% else %}User{% endif %}
           </span>
           <svg class="pw-profile__chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="m6 9 6 6 6-6"></path>

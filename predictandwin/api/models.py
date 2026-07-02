@@ -4,11 +4,8 @@ from django.db import models
 class Country(models.Model):
     name = models.CharField(max_length=100)
     official_name = models.CharField(max_length=200, blank=True)
-
-    # Nepal -> NP
+    
     iso2 = models.CharField(max_length=2, unique=True)
-
-    # Nepal -> NPL
     iso3 = models.CharField(max_length=3, unique=True)
 
     flag_png = models.URLField()

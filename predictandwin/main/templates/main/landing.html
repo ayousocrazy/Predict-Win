@@ -56,7 +56,7 @@
         <a href="{% url 'dashboard' %}" class="btn btn--ghost" id="dashboardBtn" type="button">Dashboard</a>
         <a href="#" class="avatar-btn" id="avatarBtn" type="button" aria-label="Open profile menu">
           <span class="avatar-btn__ring">
-            <span class="avatar-btn__initials">RS</span>
+            <span class="avatar-btn__initials">{% if user.initials %}{{ user.initials }}{% else %}U{% endif %}</span>
           </span>
         </a>
       </div>

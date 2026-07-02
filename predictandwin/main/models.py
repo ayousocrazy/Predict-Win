@@ -106,6 +106,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         "email",
     ]
 
+    @property
+    def initials(self):
+        if not self.full_name:
+            return "U"
+
+        parts = self.full_name.split()
+        if len(parts) == 1:
+            return parts[0][0].upper()
+
+        return (parts[0][0] + parts[-1][0]).upper()
+
     def __str__(self):
         return self.username
 
