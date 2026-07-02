@@ -44,20 +44,23 @@
     </nav>
 
     <div class="navbar__actions">
+      {% if not user.is_authenticated %}
       <div class="auth-guest" id="authGuest">
-        <button class="btn btn--ghost" id="loginBtn" type="button">Log In</button>
-        <button class="btn btn--primary" id="signupBtn" type="button">
+        <a href="{% url 'login' %}" class="btn btn--ghost" id="loginBtn" type="button">Log In</a>
+        <a href="{% url 'signup' %}" class="btn btn--primary" id="signupBtn" type="button">
           <span>Sign Up</span>
-        </button>
+        </a>
       </div>
-      <div class="auth-user hidden" id="authUser">
-        <button class="btn btn--ghost" id="dashboardBtn" type="button">Dashboard</button>
-        <button class="avatar-btn" id="avatarBtn" type="button" aria-label="Open profile menu">
+      {% else %}
+      <div class="auth-user" id="authUser">
+        <a href="{% url 'dashboard' %}" class="btn btn--ghost" id="dashboardBtn" type="button">Dashboard</a>
+        <a href="#" class="avatar-btn" id="avatarBtn" type="button" aria-label="Open profile menu">
           <span class="avatar-btn__ring">
             <span class="avatar-btn__initials">RS</span>
           </span>
-        </button>
+        </a>
       </div>
+      {% endif %}
       <button class="hamburger" id="hamburgerBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
         <span></span><span></span><span></span>
       </button>
@@ -77,8 +80,8 @@
       <li><a href="#faq" class="mobile-link" data-section="faq">FAQ</a></li>
     </ul>
     <div class="mobile-menu__actions">
-      <button class="btn btn--ghost btn--block" id="mobileLoginBtn" type="button">Log In</button>
-      <button class="btn btn--primary btn--block" id="mobileSignupBtn" type="button">Sign Up</button>
+      <a href="{% url 'login' %}" class="btn btn--ghost btn--block" id="mobileLoginBtn" type="button">Log In</a>
+      <a href="{% url 'signup' %}" class="btn btn--primary btn--block" id="mobileSignupBtn" type="button">Sign Up</a>
     </div>
   </nav>
 </div>
@@ -116,9 +119,9 @@
           Join Predict&amp;Win and test your football knowledge by predicting FIFA World Cup 2026 matches before kickoff. Earn points, compete with friends, and become the ultimate football predictor.
         </p>
         <div class="hero__cta">
-          <button class="btn btn--primary btn--lg ripple" id="startPredictingBtn" type="button">
+          <a href="{% url 'dashboard' %}" class="btn btn--primary btn--lg ripple" id="startPredictingBtn" type="button">
             <span>Start Predicting</span>
-          </button>
+          </a>
           <a href="#scoring" class="btn btn--outline btn--lg ripple">
             <span>View Scoring System</span>
           </a>
@@ -538,7 +541,7 @@
     <div class="container final-cta__inner" data-reveal>
       <h2>Ready to Become the Ultimate Football Predictor?</h2>
       <p>Register today and compete in TechTrix 2026's biggest football prediction challenge.</p>
-      <button class="btn btn--primary btn--lg ripple" id="registerNowBtn" type="button"><span>Register Now</span></button>
+      <a href="{% url 'signup' %}" class="btn btn--primary btn--lg ripple"><span>Register Now</span></a>
     </div>
   </section>
 
@@ -600,7 +603,7 @@
   </div>
 </footer>
 
-<button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">↑</button>
+<button class="back-to-top" id="backToTop" aria-label="Back to top" type="button"><i class="ph-fill ph-arrow-circle-up"></i></button>
 
 <script src="{% static 'script/landing.js' %}"></script>
 {% endblock content %}
