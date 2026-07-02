@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Your Website Title</title>
+<meta name="description" content="Short description">
+
+<meta property="og:title" content="Your Website Title">
+<meta property="og:description" content="Short description">
+<meta property="og:image" content="/image.jpg">
+
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{% static 'styles/landing.css' %}" />
+</head>
+<body>
+
+    {% block content %}
+
+    {% endblock %}
+</body>
+</html>

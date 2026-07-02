@@ -1,0 +1,606 @@
+{% extends 'landingTemplate.html' %}
+{% load static %}
+
+{% block content %}
+<!-- ============ LOADER ============ -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader__pitch">
+    <span class="loader__ball">⚽</span>
+  </div>
+  <p class="loader__text">Loading Predict&amp;Win…</p>
+</div>
+
+<!-- ============ SCROLL PROGRESS ============ -->
+<div class="scroll-progress" id="scrollProgress" role="progressbar" aria-label="Scroll progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+
+<!-- ============ MOUSE GLOW ============ -->
+<div class="mouse-glow" id="mouseGlow" aria-hidden="true"></div>
+
+<!-- ============ SKIP LINK ============ -->
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar" id="navbar">
+  <div class="navbar__inner container">
+    <a class="navbar__brand" href="#home" aria-label="Predict&amp;Win home">
+      <span class="brand-logo" aria-hidden="true">
+        <span class="brand-logo__ball">⚽</span>
+      </span>
+      <span class="brand-text">
+        <span class="brand-text__name">Predict&amp;Win</span>
+        <span class="brand-text__sub">Official TechTrix 2026 Event</span>
+      </span>
+    </a>
+
+    <nav class="navbar__nav" id="primaryNav" aria-label="Primary">
+      <ul class="navbar__links" id="navLinks">
+        <li><a href="#home" class="nav-link active" data-section="home">Home</a></li>
+        <li><a href="#about" class="nav-link" data-section="about">About</a></li>
+        <li><a href="#how-it-works" class="nav-link" data-section="how-it-works">How It Works</a></li>
+        <li><a href="#scoring" class="nav-link" data-section="scoring">Scoring</a></li>
+        <li><a href="#dashboard" class="nav-link" data-section="dashboard">Dashboard</a></li>
+        <li><a href="#faq" class="nav-link" data-section="faq">FAQ</a></li>
+      </ul>
+    </nav>
+
+    <div class="navbar__actions">
+      <div class="auth-guest" id="authGuest">
+        <button class="btn btn--ghost" id="loginBtn" type="button">Log In</button>
+        <button class="btn btn--primary" id="signupBtn" type="button">
+          <span>Sign Up</span>
+        </button>
+      </div>
+      <div class="auth-user hidden" id="authUser">
+        <button class="btn btn--ghost" id="dashboardBtn" type="button">Dashboard</button>
+        <button class="avatar-btn" id="avatarBtn" type="button" aria-label="Open profile menu">
+          <span class="avatar-btn__ring">
+            <span class="avatar-btn__initials">RS</span>
+          </span>
+        </button>
+      </div>
+      <button class="hamburger" id="hamburgerBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MOBILE MENU ============ -->
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav aria-label="Mobile Primary">
+    <ul class="mobile-menu__links">
+      <li><a href="#home" class="mobile-link" data-section="home">Home</a></li>
+      <li><a href="#about" class="mobile-link" data-section="about">About</a></li>
+      <li><a href="#how-it-works" class="mobile-link" data-section="how-it-works">How It Works</a></li>
+      <li><a href="#scoring" class="mobile-link" data-section="scoring">Scoring</a></li>
+      <li><a href="#dashboard" class="mobile-link" data-section="dashboard">Dashboard</a></li>
+      <li><a href="#faq" class="mobile-link" data-section="faq">FAQ</a></li>
+    </ul>
+    <div class="mobile-menu__actions">
+      <button class="btn btn--ghost btn--block" id="mobileLoginBtn" type="button">Log In</button>
+      <button class="btn btn--primary btn--block" id="mobileSignupBtn" type="button">Sign Up</button>
+    </div>
+  </nav>
+</div>
+
+<main id="main-content">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="home">
+    <div class="hero__bg" aria-hidden="true">
+      <div class="blob blob--1"></div>
+      <div class="blob blob--2"></div>
+      <div class="blob blob--3"></div>
+      <div class="grid-overlay"></div>
+      <div class="noise-overlay"></div>
+      <div class="floating-balls">
+        <span class="floating-ball fb1">⚽</span>
+        <span class="floating-ball fb2">⚽</span>
+        <span class="floating-ball fb3">⚽</span>
+        <span class="floating-ball fb4">⚽</span>
+        <span class="floating-ball fb5">⚽</span>
+      </div>
+    </div>
+
+    <div class="container hero__inner">
+      <div class="hero__content" data-reveal>
+        <span class="badge">
+          <span aria-hidden="true">⚽</span> OFFICIAL TECHTRIX 2026 SUB EVENT
+        </span>
+        <h1 class="hero__title">
+          <span class="type-line" data-typed>Predict Every Match.</span>
+          <span class="gradient-text">Climb the Leaderboard.</span>
+          <span>Win the Game.</span>
+        </h1>
+        <p class="hero__desc">
+          Join Predict&amp;Win and test your football knowledge by predicting FIFA World Cup 2026 matches before kickoff. Earn points, compete with friends, and become the ultimate football predictor.
+        </p>
+        <div class="hero__cta">
+          <button class="btn btn--primary btn--lg ripple" id="startPredictingBtn" type="button">
+            <span>Start Predicting</span>
+          </button>
+          <a href="#scoring" class="btn btn--outline btn--lg ripple">
+            <span>View Scoring System</span>
+          </a>
+        </div>
+        <div class="hero__meta">
+          <div class="hero__meta-item"><strong>64</strong><span>Matches</span></div>
+          <div class="hero__meta-item"><strong>1000+</strong><span>Participants</span></div>
+          <div class="hero__meta-item"><strong>Live</strong><span>Leaderboard</span></div>
+        </div>
+      </div>
+
+      <div class="hero__mock" data-reveal>
+        <div class="dash-card dash-card--main glass">
+          <div class="dash-card__header">
+            <span class="dash-card__title">Upcoming Match</span>
+            <span class="live-dot" aria-hidden="true"></span>
+          </div>
+          <div class="match-preview">
+            <div class="match-preview__team">
+              <span class="team-crest team-crest--a">BRA</span>
+              <span>Brazil</span>
+            </div>
+            <div class="match-preview__vs">
+              <span class="countdown" id="heroCountdown" aria-label="Countdown to kickoff">02:14:33</span>
+              <span class="match-preview__label">Kickoff In</span>
+            </div>
+            <div class="match-preview__team">
+              <span class="team-crest team-crest--b">ARG</span>
+              <span>Argentina</span>
+            </div>
+          </div>
+
+          <div class="prediction-card">
+            <span class="prediction-card__label">Your Prediction</span>
+            <div class="prediction-card__score">
+              <span class="score-pill">2</span>
+              <span>—</span>
+              <span class="score-pill">1</span>
+            </div>
+            <button class="btn btn--mini" type="button">Edit</button>
+          </div>
+
+          <div class="dash-widgets">
+            <div class="widget glass">
+              <span class="widget__label">Points</span>
+              <span class="widget__value">2,480</span>
+              <span class="progress-ring" style="--p:72"><svg viewBox="0 0 44 44"><circle class="ring-bg" cx="22" cy="22" r="18"></circle><circle class="ring-fg" cx="22" cy="22" r="18"></circle></svg></span>
+            </div>
+            <div class="widget glass">
+              <span class="widget__label">Rank</span>
+              <span class="widget__value">#12</span>
+              <span class="mini-chart" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span>
+              </span>
+            </div>
+          </div>
+
+          <div class="mini-leaderboard">
+            <div class="mini-leaderboard__row"><span>1</span><span>Aarav_M</span><span>3,120</span></div>
+            <div class="mini-leaderboard__row"><span>2</span><span>PriyaK</span><span>2,995</span></div>
+            <div class="mini-leaderboard__row mini-leaderboard__row--you"><span>12</span><span>You</span><span>2,480</span></div>
+          </div>
+
+          <div class="badge-row">
+            <span class="mini-badge" title="Perfect Score"><i class="ph-fill ph-target"></i></span>
+            <span class="mini-badge" title="5-Match Streak"><i class="ph-fill ph-flame"></i></span>
+            <span class="mini-badge" title="Top 20"><i class="ph-fill ph-trophy"></i></span>
+          </div>
+        </div>
+
+        <div class="dash-card dash-card--notif glass" aria-hidden="true">
+          <span class="notif-dot"></span>
+          <span>Predictions lock in 12 min</span>
+        </div>
+
+        <div class="dash-card dash-card--recent glass" aria-hidden="true">
+          <span class="dash-card__title">Recent Predictions</span>
+          <div class="recent-row"><span>FRA 2–1 ENG</span><span class="tag tag--hit">+20</span></div>
+          <div class="recent-row"><span>ESP 1–1 GER</span><span class="tag tag--miss">+4</span></div>
+        </div>
+      </div>
+    </div>
+
+    <a href="#about" class="scroll-cue" aria-label="Scroll to About section">
+      <span></span>
+    </a>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section class="stats" aria-label="Event statistics">
+    <div class="container stats__grid">
+      <div class="stat-item" data-reveal>
+        <span class="stat-item__value" data-counter data-target="20" data-suffix="+">0</span>
+        <span class="stat-item__label">Prediction Categories</span>
+      </div>
+      <div class="stat-item" data-reveal>
+        <span class="stat-item__value" data-counter data-target="64">0</span>
+        <span class="stat-item__label">World Cup Matches</span>
+      </div>
+      <div class="stat-item" data-reveal>
+        <span class="stat-item__value" data-counter data-target="1000" data-suffix="+">0</span>
+        <span class="stat-item__label">Participants</span>
+      </div>
+      <div class="stat-item" data-reveal>
+        <span class="stat-item__value stat-item__value--text">Unlimited</span>
+        <span class="stat-item__label">Predictions</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="about" id="about">
+    <div class="container about__grid">
+      <div class="about__content" data-reveal>
+        <span class="eyebrow">About the Event</span>
+        <h2 class="section-title">Where football instinct <span class="gradient-text">meets competition</span></h2>
+        <p class="section-desc">
+          Predict&amp;Win is an official TechTrix 2026 sub-event built for the FIFA World Cup 2026. Before every match kicks off, you lock in your predictions — from the final score to first goal scorer — and the system scores you the moment the whistle blows.
+        </p>
+        <ul class="about__list">
+          <li><span class="about__list-icon"></span><div><strong>Official TechTrix 2026 Event</strong><span>Hosted as part of the flagship TechTrix fest.</span></div></li>
+          <li><span class="about__list-icon"></span><div><strong>FIFA World Cup 2026</strong><span>Every one of the 64 matches is predictable.</span></div></li>
+          <li><span class="about__list-icon"></span><div><strong>Prediction System</strong><span>20+ categories, scored automatically at kickoff lock.</span></div></li>
+          <li><span class="about__list-icon"></span><div><strong>Live Leaderboards</strong><span>Real-time ranking against every participant.</span></div></li>
+          <li><span class="about__list-icon"></span><div><strong>Rewards</strong><span>Top predictors are recognized at TechTrix 2026.</span></div></li>
+          <li><span class="about__list-icon"></span><div><strong>Friendly Competition</strong><span>Rep your department, squad up with friends.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="about__visual" data-reveal aria-hidden="true">
+        <div class="field">
+          <div class="field__stripe"></div>
+          <div class="field__stripe"></div>
+          <div class="field__stripe"></div>
+          <div class="field__stripe"></div>
+          <div class="field__center-circle"></div>
+          <div class="field__center-line"></div>
+          <div class="field__box field__box--left"></div>
+          <div class="field__box field__box--right"></div>
+          <span class="field__ball">⚽</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Everything You Need</span>
+        <h2 class="section-title">Built for serious predictors</h2>
+        <p class="section-desc">A complete prediction toolkit, wrapped in an interface that feels like a real product.</p>
+      </div>
+
+      <div class="features__grid">
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-target"></i></span><h3>Predict Matches</h3><p>Lock in predictions across 20+ categories before every kickoff.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-star"></i></span><h3>Earn Points</h3><p>Accuracy-weighted scoring rewards sharp football instincts.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-chart-line-up"></i></span><h3>Live Leaderboard</h3><p>Watch your rank update in real time as matches conclude.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-user"></i></span><h3>Profile Statistics</h3><p>Track accuracy, streaks and category-wise performance.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-medal"></i></span><h3>Achievements</h3><p>Unlock badges for streaks, perfect scores and milestones.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-clock"></i></span><h3>Prediction History</h3><p>Revisit every prediction you've made across the tournament.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-clock-countdown"></i></span><h3>Countdown Timer</h3><p>Never miss a lock-in with live per-match countdowns.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-chart-bar"></i></span><h3>Match Analytics</h3><p>Deep-dive breakdowns of prediction trends and community picks.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-list-dashes"></i></span><h3>Responsive Dashboard</h3><p>A full-featured experience on desktop, tablet and phone.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-lock"></i></span><h3>Secure Login</h3><p>Your account and predictions are protected end to end.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-lightning"></i></span><h3>Fast Performance</h3><p>Built lean — no bloated frameworks, just speed.</p></article>
+        <article class="feature-card glass" data-reveal><span class="feature-card__icon"><i class="ph-fill ph-sparkle"></i></span><h3>Modern UI</h3><p>A premium interface designed to feel effortless to use.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">The Process</span>
+        <h2 class="section-title">Five steps to the leaderboard</h2>
+      </div>
+
+      <ol class="timeline">
+        <li class="timeline__step" data-reveal>
+          <span class="timeline__icon"><i class="ph-fill ph-shield-check"></i></span>
+          <div class="timeline__body"><span class="timeline__num">Step 1</span><h3>Create Account</h3><p>Sign up in seconds.</p></div>
+        </li>
+        <li class="timeline__step" data-reveal>
+          <span class="timeline__icon"><i class="ph-fill ph-crosshair"></i></span>
+          <div class="timeline__body"><span class="timeline__num">Step 2</span><h3>Predict Match</h3><p>Fill in scores, scorers and stats before kickoff.</p></div>
+        </li>
+        <li class="timeline__step" data-reveal>
+          <span class="timeline__icon"><i class="ph-fill ph-television-simple"></i></span>
+          <div class="timeline__body"><span class="timeline__num">Step 3</span><h3>Watch FIFA Match</h3><p>Predictions auto-lock the moment the match starts.</p></div>
+        </li>
+        <li class="timeline__step" data-reveal>
+          <span class="timeline__icon"><i class="ph-fill ph-star"></i></span>
+          <div class="timeline__body"><span class="timeline__num">Step 4</span><h3>Earn Points</h3><p>Scoring happens automatically at full time.</p></div>
+        </li>
+        <li class="timeline__step" data-reveal>
+          <span class="timeline__icon"><i class="ph-fill ph-trophy"></i></span>
+          <div class="timeline__body"><span class="timeline__num">Step 5</span><h3>Reach Leaderboard</h3><p>Climb the ranks and get recognized at TechTrix 2026.</p></div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ SCORING ============ -->
+  <section class="scoring" id="scoring">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Scoring System</span>
+        <h2 class="section-title">Every detail earns points</h2>
+        <p class="section-desc">The more precise your prediction, the more points you earn.</p>
+      </div>
+
+      <div class="info-banner glass" data-reveal>
+        <span aria-hidden="true"><i class="ph-fill ph-lock"></i></span>
+        <span>Predictions lock automatically before kickoff — no edits once the match begins.</span>
+      </div>
+
+      <div class="scoring-table-wrap glass" data-reveal>
+        <table class="scoring-table">
+          <caption class="sr-only">Prediction categories and point values</caption>
+          <thead>
+            <tr><th scope="col">Prediction Category</th><th scope="col">Points</th></tr>
+          </thead>
+          <tbody>
+            <tr data-label="Correct Full-Time Score (90 mins)"><td data-th="Category">Correct Full-Time Score (90 mins)</td><td data-th="Points"><span class="pts pts--high">20</span></td></tr>
+            <tr data-label="Correct Match Winner"><td data-th="Category">Correct Match Winner</td><td data-th="Points"><span class="pts pts--mid">13</span></td></tr>
+            <tr data-label="Correct Half-Time Score"><td data-th="Category">Correct Half-Time Score</td><td data-th="Points"><span class="pts pts--mid">13</span></td></tr>
+            <tr data-label="First Goal Scorer"><td data-th="Category">First Goal Scorer</td><td data-th="Points"><span class="pts pts--mid">13</span></td></tr>
+            <tr data-label="Goal Between 46–60 Minutes"><td data-th="Category">Goal Between 46–60 Minutes</td><td data-th="Points"><span class="pts pts--low">9</span></td></tr>
+            <tr data-label="Goal in First 15 Minutes"><td data-th="Category">Goal in First 15 Minutes</td><td data-th="Points"><span class="pts pts--low">9</span></td></tr>
+            <tr data-label="Correct Goals by Team A"><td data-th="Category">Correct Goals by Team A</td><td data-th="Points"><span class="pts pts--low">7</span></td></tr>
+            <tr data-label="Correct Goals by Team B"><td data-th="Category">Correct Goals by Team B</td><td data-th="Points"><span class="pts pts--low">7</span></td></tr>
+            <tr data-label="First Team to Score"><td data-th="Category">First Team to Score</td><td data-th="Points"><span class="pts pts--low">7</span></td></tr>
+            <tr data-label="Goal Scored in Both Halves"><td data-th="Category">Goal Scored in Both Halves</td><td data-th="Points"><span class="pts pts--low">7</span></td></tr>
+            <tr data-label="Goal Between 76–90+ Minutes"><td data-th="Category">Goal Between 76–90+ Minutes</td><td data-th="Points"><span class="pts pts--low">7</span></td></tr>
+            <tr data-label="Penalty Awarded"><td data-th="Category">Penalty Awarded</td><td data-th="Points"><span class="pts pts--low">7</span></td></tr>
+            <tr data-label="Hat-trick Scored"><td data-th="Category">Hat-trick Scored</td><td data-th="Points"><span class="pts pts--low">7</span></td></tr>
+            <tr data-label="Winning Method"><td data-th="Category">Winning Method</td><td data-th="Points"><span class="pts pts--min">5</span></td></tr>
+            <tr data-label="Man of the Match"><td data-th="Category">Man of the Match</td><td data-th="Points"><span class="pts pts--min">5</span></td></tr>
+            <tr data-label="Total Goals (Over/Under 2.5)"><td data-th="Category">Total Goals (Over/Under 2.5)</td><td data-th="Points"><span class="pts pts--min">4</span></td></tr>
+            <tr data-label="Both Teams to Score"><td data-th="Category">Both Teams to Score</td><td data-th="Points"><span class="pts pts--min">4</span></td></tr>
+            <tr data-label="Red Card Shown"><td data-th="Category">Red Card Shown</td><td data-th="Points"><span class="pts pts--min">3</span></td></tr>
+            <tr data-label="Total Corners (Range)"><td data-th="Category">Total Corners (Range)</td><td data-th="Points"><span class="pts pts--tiny">2</span></td></tr>
+            <tr data-label="Total Yellow Cards (Range)"><td data-th="Category">Total Yellow Cards (Range)</td><td data-th="Points"><span class="pts pts--tiny">1</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DASHBOARD PREVIEW ============ -->
+  <section class="dashboard-preview" id="dashboard">
+    <div class="dashboard-preview__bg" aria-hidden="true"></div>
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Product Preview</span>
+        <h2 class="section-title">One dashboard, every device</h2>
+        <p class="section-desc">Predict on the go or dive into full analytics on desktop.</p>
+      </div>
+
+      <div class="devices" data-reveal>
+        <!-- Laptop -->
+        <div class="device device--laptop">
+          <div class="device__screen glass">
+            <div class="app-topbar">
+              <span class="app-topbar__dot"></span><span class="app-topbar__dot"></span><span class="app-topbar__dot"></span>
+              <span class="app-topbar__title">Predict&amp;Win Dashboard</span>
+            </div>
+            <div class="app-body">
+              <aside class="app-sidebar">
+                <span class="app-sidebar__item app-sidebar__item--active">Overview</span>
+                <span class="app-sidebar__item">Predictions</span>
+                <span class="app-sidebar__item">Leaderboard</span>
+                <span class="app-sidebar__item">Stats</span>
+              </aside>
+              <div class="app-main">
+                <div class="app-row">
+                  <div class="app-tile glass"><span>Total Points</span><strong>2,480</strong></div>
+                  <div class="app-tile glass"><span>Global Rank</span><strong>#12</strong></div>
+                  <div class="app-tile glass app-tile--countdown"><span>Next Lock</span><strong id="laptopCountdown">02:14:33</strong></div>
+                </div>
+                <div class="app-row app-row--split">
+                  <div class="app-chart glass">
+                    <span class="app-chart__title">Points Trend</span>
+                    <div class="bars">
+                      <span style="--h:40%"></span><span style="--h:65%"></span><span style="--h:50%"></span><span style="--h:80%"></span><span style="--h:60%"></span><span style="--h:95%"></span><span style="--h:75%"></span>
+                    </div>
+                  </div>
+                  <div class="app-leaderboard glass">
+                    <span class="app-chart__title">Leaderboard</span>
+                    <div class="lb-row"><span>1</span><span>Aarav_M</span><span>3,120</span></div>
+                    <div class="lb-row"><span>2</span><span>PriyaK</span><span>2,995</span></div>
+                    <div class="lb-row"><span>3</span><span>Devansh</span><span>2,870</span></div>
+                    <div class="lb-row lb-row--you"><span>12</span><span>You</span><span>2,480</span></div>
+                  </div>
+                </div>
+                <div class="app-row">
+                  <div class="app-activity glass">
+                    <span class="app-chart__title">Recent Activity</span>
+                    <div class="recent-row"><span>NED 3–1 JPN predicted</span><span class="tag tag--hit">+20</span></div>
+                    <div class="recent-row"><span>POR 2–2 URU predicted</span><span class="tag tag--miss">+7</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="device__base"></div>
+        </div>
+
+        <!-- Tablet -->
+        <div class="device device--tablet">
+          <div class="device__screen glass">
+            <div class="app-topbar app-topbar--min"><span class="app-topbar__title">Matches</span></div>
+            <div class="app-tile glass"><span>Upcoming</span><strong>MEX vs KOR</strong></div>
+            <div class="app-tile glass"><span>Your Pick</span><strong>2 – 1</strong></div>
+            <div class="mini-chart mini-chart--lg" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="device device--phone">
+          <div class="device__screen glass">
+            <div class="app-topbar app-topbar--min"><span class="app-topbar__title">Predict&amp;Win</span></div>
+            <div class="app-tile glass app-tile--sm"><span>Upcoming Match</span><strong>ENG vs FRA</strong></div>
+            <div class="app-tile glass app-tile--sm"><span>Your Points</span><strong>2,480</strong></div>
+            <div class="app-tile glass app-tile--sm"><span>Rank</span><strong>#12</strong></div>
+          </div>
+          <div class="device__notch"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="faq" id="faq">
+    <div class="container faq__wrap">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Questions</span>
+        <h2 class="section-title">Frequently asked questions</h2>
+      </div>
+
+      <div class="accordion" data-reveal>
+        <div class="accordion__item">
+          <h3>
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="faq1">
+              Who can participate?
+              <span class="accordion__icon" aria-hidden="true"></span>
+            </button>
+          </h3>
+          <div class="accordion__panel" id="faq1" role="region">
+            <p>Any registered student attending TechTrix 2026 can create an account and take part — no football expertise required.</p>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <h3>
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="faq2">
+              How do predictions work?
+              <span class="accordion__icon" aria-hidden="true"></span>
+            </button>
+          </h3>
+          <div class="accordion__panel" id="faq2" role="region">
+            <p>Before each match, fill in predictions across categories like score, scorers and cards. Points are awarded automatically once results are in.</p>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <h3>
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="faq3">
+              Can I edit predictions?
+              <span class="accordion__icon" aria-hidden="true"></span>
+            </button>
+          </h3>
+          <div class="accordion__panel" id="faq3" role="region">
+            <p>Yes, anytime before kickoff. Once the match starts, predictions lock automatically and can no longer be changed.</p>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <h3>
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="faq4">
+              When do predictions close?
+              <span class="accordion__icon" aria-hidden="true"></span>
+            </button>
+          </h3>
+          <div class="accordion__panel" id="faq4" role="region">
+            <p>Predictions close the exact moment a match kicks off. A live countdown on every match card shows the time remaining.</p>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <h3>
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="faq5">
+              How are points calculated?
+              <span class="accordion__icon" aria-hidden="true"></span>
+            </button>
+          </h3>
+          <div class="accordion__panel" id="faq5" role="region">
+            <p>Each category has a fixed point value based on prediction difficulty — see the full scoring table above for details.</p>
+          </div>
+        </div>
+        <div class="accordion__item">
+          <h3>
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="faq6">
+              When is the leaderboard updated?
+              <span class="accordion__icon" aria-hidden="true"></span>
+            </button>
+          </h3>
+          <div class="accordion__panel" id="faq6" role="region">
+            <p>The leaderboard updates in real time as soon as a match ends and results are scored.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section class="final-cta">
+    <div class="final-cta__glow" aria-hidden="true"></div>
+    <div class="container final-cta__inner" data-reveal>
+      <h2>Ready to Become the Ultimate Football Predictor?</h2>
+      <p>Register today and compete in TechTrix 2026's biggest football prediction challenge.</p>
+      <button class="btn btn--primary btn--lg ripple" id="registerNowBtn" type="button"><span>Register Now</span></button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container footer__grid">
+    <div class="footer__col footer__brand">
+      <a class="navbar__brand" href="#home" aria-label="Predict&amp;Win home">
+        <span class="brand-logo" aria-hidden="true"><span class="brand-logo__ball">⚽</span></span>
+        <span class="brand-text"><span class="brand-text__name">Predict&amp;Win</span></span>
+      </a>
+      <p>The official TechTrix 2026 football prediction event for the FIFA World Cup 2026.</p>
+      <div class="footer__social">
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12Z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2c2.7 0 3.1 0 4.1.1 1.1 0 1.8.2 2.5.5.7.3 1.2.6 1.7 1.1.5.5.9 1 1.1 1.7.3.7.5 1.4.5 2.5.1 1 .1 1.4.1 4.1s0 3.1-.1 4.1c0 1.1-.2 1.8-.5 2.5-.3.7-.6 1.2-1.1 1.7-.5.5-1 .9-1.7 1.1-.7.3-1.4.5-2.5.5-1 .1-1.4.1-4.1.1s-3.1 0-4.1-.1c-1.1 0-1.8-.2-2.5-.5-.7-.3-1.2-.6-1.7-1.1-.5-.5-.9-1-1.1-1.7-.3-.7-.5-1.4-.5-2.5C2 15.1 2 14.7 2 12s0-3.1.1-4.1c0-1.1.2-1.8.5-2.5.3-.7.6-1.2 1.1-1.7.5-.5 1-.9 1.7-1.1.7-.3 1.4-.5 2.5-.5C8.9 2 9.3 2 12 2Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.3a3.3 3.3 0 1 1 0-6.6 3.3 3.3 0 0 1 0 6.6Zm5.2-8.5a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z"/></svg></a>
+        <a href="#" aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2ZM8.3 18.5H5.6V9.7h2.7v8.8ZM7 8.5a1.6 1.6 0 1 1 0-3.1 1.6 1.6 0 0 1 0 3.1Zm11.5 10H15.8v-4.6c0-1.1 0-2.5-1.5-2.5s-1.8 1.2-1.8 2.4v4.7H9.8V9.7h2.6v1.2h.1c.4-.7 1.3-1.5 2.6-1.5 2.8 0 3.4 1.9 3.4 4.3v5Z"/></svg></a>
+        <a href="#" aria-label="GitHub"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.1-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.4-1.1.6-1.4-2.2-.2-4.6-1.1-4.6-5a3.9 3.9 0 0 1 1-2.7c-.1-.2-.5-1.3.1-2.8 0 0 .9-.3 2.9 1a10 10 0 0 1 5.2 0c2-1.3 2.9-1 2.9-1 .6 1.5.2 2.6.1 2.8.7.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7 1 .7 2v2.9c0 .3.2.6.7.5A10 10 0 0 0 12 2Z"/></svg></a>
+        <a href="mailto:predictwin@techtrix2026.com" aria-label="Email"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h17A1.5 1.5 0 0 1 22 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 18.5v-13Zm2.2.5 7.8 5.9L19.8 6H4.2ZM20 8.1l-7.4 5.6a1 1 0 0 1-1.2 0L4 8.1V18h16V8.1Z"/></svg></a>
+      </div>
+    </div>
+
+    <div class="footer__col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#dashboard">Dashboard</a></li>
+        <li><a href="#scoring">Scoring</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h4>Event</h4>
+      <ul>
+        <li><a href="#">TechTrix 2026</a></li>
+        <li><a href="#">Predict&amp;Win</a></li>
+        <li><a href="#">FIFA World Cup 2026</a></li>
+        <li><a href="#">Rules</a></li>
+        <li><a href="#">Leaderboard</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h4>Contact</h4>
+      <ul class="footer__contact">
+        <li><span aria-hidden="true">✉️</span> predictwin@techtrix2026.com</li>
+        <li><span aria-hidden="true">📞</span> +91 98765 43210</li>
+        <li><span aria-hidden="true">📍</span> TechTrix 2026 Campus Grounds</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <p>Copyright © 2026 Predict&amp;Win. Official TechTrix 2026 Sub Event.</p>
+    <p>Designed with <i class="ph-fill ph-heart"></i> for football fans.</p>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">↑</button>
+
+<script src="{% static 'script/landing.js' %}"></script>
+{% endblock content %}

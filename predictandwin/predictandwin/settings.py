@@ -85,6 +85,8 @@ else:
         }
     }
 
+AUTH_USER_MODEL = "main.User"
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
