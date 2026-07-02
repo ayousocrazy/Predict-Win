@@ -1,0 +1,386 @@
+/*DESIGN TOKENS*/
+:root {
+  --pw-bg: #F5F6F8;
+  --pw-surface: #FFFFFF;
+  --pw-border: #E4E6EB;
+
+  --pw-primary: #1877F2;
+  --pw-primary-hover: #166FE5;
+  --pw-primary-soft: #E7F0FE;
+
+  --pw-secondary: #E4E6EB;
+
+  --pw-text: #1C1E21;
+  --pw-text-gray: #65676B;
+  --pw-text-on-primary: #FFFFFF;
+
+  --pw-radius: 16px;
+  --pw-radius-sm: 10px;
+  --pw-radius-pill: 999px;
+
+  --pw-shadow-sm: 0 1px 2px rgba(28,30,33,0.06), 0 1px 3px rgba(28,30,33,0.08);
+  --pw-shadow-md: 0 8px 24px rgba(28,30,33,0.10);
+  --pw-shadow-lg: 0 16px 40px rgba(28,30,33,0.14);
+
+  --pw-nav-h: 64px;
+  --pw-bottom-nav-h: 70px;
+
+  --pw-ease: cubic-bezier(.2,.8,.2,1);
+  --pw-dur-fast: 0.16s;
+  --pw-dur-med: 0.28s;
+
+  --pw-font: 'Poppins', system-ui, -apple-system, sans-serif;
+}
+
+/*SCOPED RESET (namespaced so it plays nicely inside a
+      larger Django app stylesheet)*/
+.pw-navbar, .pw-bottom-nav, .pw-profile__menu {
+  font-family: var(--pw-font);
+  box-sizing: border-box;
+}
+.pw-navbar *, .pw-bottom-nav *, .pw-profile__menu * { box-sizing: border-box; }
+.pw-navbar ul { list-style: none; margin: 0; padding: 0; }
+.pw-navbar a, .pw-bottom-nav a { text-decoration: none; color: inherit; }
+.pw-navbar button { font: inherit; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pw-navbar *, .pw-bottom-nav *, .pw-profile__menu * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.pw-navbar :focus-visible,
+.pw-bottom-nav :focus-visible,
+.pw-profile__menu :focus-visible {
+  outline: 2px solid var(--pw-primary);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/*TOP NAVBAR — SHELL*/
+.pw-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 800;
+  height: var(--pw-nav-h);
+  background: var(--pw-surface);
+  border-bottom: 1px solid var(--pw-border);
+  box-shadow: var(--pw-shadow-sm);
+}
+.pw-navbar__inner {
+  height: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 2rem);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+
+/*BRAND*/
+.pw-navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  justify-self: start;
+  min-width: 0;
+}
+.pw-brand-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--pw-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+.pw-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 0;
+}
+.pw-brand-text__name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--pw-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pw-brand-text__sub {
+  font-size: 0.68rem;
+  color: var(--pw-text-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*CENTER NAV + ACTIVE INDICATOR*/
+.pw-navbar__nav { justify-self: center; }
+.pw-nav-list {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--pw-bg);
+  padding: 0.3rem;
+  border-radius: var(--pw-radius-pill);
+}
+.pw-nav-item { position: relative; z-index: 1; }
+
+.pw-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--pw-radius-pill);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--pw-text-gray);
+  min-height: 44px;
+  transition: color var(--pw-dur-fast) var(--pw-ease), background var(--pw-dur-fast) var(--pw-ease);
+  white-space: nowrap;
+}
+.pw-nav-link__icon { flex-shrink: 0; transition: transform var(--pw-dur-fast) var(--pw-ease); }
+
+.pw-nav-link:hover {
+  color: var(--pw-primary);
+  background: var(--pw-primary-soft);
+}
+.pw-nav-link:hover .pw-nav-link__icon { transform: translateY(-1px); }
+
+.pw-nav-link.is-active {
+  color: var(--pw-text-on-primary);
+  background: var(--pw-primary);
+  box-shadow: var(--pw-shadow-sm);
+}
+.pw-nav-link.is-active:hover { background: var(--pw-primary-hover); }
+
+/* Sliding indicator (optional enhancement layer driven by JS;
+   degrades gracefully to per-link backgrounds above if JS is off) */
+.pw-nav-indicator {
+  position: absolute;
+  top: 0.3rem;
+  left: 0;
+  height: calc(100% - 0.6rem);
+  border-radius: var(--pw-radius-pill);
+  background: transparent;
+  pointer-events: none;
+  z-index: 0;
+  transition: transform var(--pw-dur-med) var(--pw-ease), width var(--pw-dur-med) var(--pw-ease);
+}
+
+/*RIGHT SIDE — PROFILE*/
+.pw-navbar__right { justify-self: end; }
+
+.pw-profile { position: relative; }
+.pw-profile__trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+  border-radius: var(--pw-radius-pill);
+  background: transparent;
+  border: 1px solid transparent;
+  min-height: 48px;
+  transition: background var(--pw-dur-fast) var(--pw-ease), border-color var(--pw-dur-fast) var(--pw-ease);
+}
+.pw-profile__trigger:hover,
+.pw-profile__trigger[aria-expanded="true"] {
+  background: var(--pw-bg);
+  border-color: var(--pw-border);
+}
+
+.pw-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--pw-primary);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.pw-profile__name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--pw-text);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pw-profile__chevron {
+  color: var(--pw-text-gray);
+  transition: transform var(--pw-dur-fast) var(--pw-ease);
+}
+.pw-profile__trigger[aria-expanded="true"] .pw-profile__chevron { transform: rotate(180deg); }
+
+/* Dropdown menu */
+.pw-profile__menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 200px;
+  background: var(--pw-surface);
+  border: 1px solid var(--pw-border);
+  border-radius: var(--pw-radius);
+  box-shadow: var(--pw-shadow-lg);
+  padding: 0.4rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top right;
+  transition: opacity var(--pw-dur-med) var(--pw-ease), transform var(--pw-dur-med) var(--pw-ease), visibility var(--pw-dur-med);
+  z-index: 850;
+}
+.pw-profile__menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+.pw-profile__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border-radius: var(--pw-radius-sm);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--pw-text);
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  transition: background var(--pw-dur-fast) var(--pw-ease);
+}
+.pw-profile__menu-item:hover { background: var(--pw-bg); }
+.pw-profile__menu-item svg { color: var(--pw-text-gray); flex-shrink: 0; }
+.pw-profile__menu-item--danger { color: #E0245E; }
+.pw-profile__menu-item--danger svg { color: #E0245E; }
+.pw-profile__menu-item--danger:hover { background: #FDECF1; }
+.pw-profile__menu-divider {
+  height: 1px;
+  background: var(--pw-border);
+  margin: 0.35rem 0.2rem;
+}
+.pw-profile__logout-form { margin: 0; }
+
+/*RIPPLE (click micro-interaction, shared)*/
+.pw-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(24,119,242,0.25);
+  transform: scale(0);
+  animation: pw-ripple 0.5s var(--pw-ease);
+  pointer-events: none;
+}
+.pw-nav-link.is-active .pw-ripple { background: rgba(255,255,255,0.35); }
+@keyframes pw-ripple { to { transform: scale(3); opacity: 0; } }
+
+/*BOTTOM NAVIGATION (mobile / tablet < 992px)*/
+.pw-bottom-nav {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 800;
+  height: var(--pw-bottom-nav-h);
+  background: var(--pw-surface);
+  border-top: 1px solid var(--pw-border);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -6px 24px rgba(28,30,33,0.08);
+  align-items: stretch;
+  justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.pw-bottom-nav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  color: var(--pw-text-gray);
+  font-size: 0.68rem;
+  font-weight: 600;
+  min-height: 48px;
+  position: relative;
+  transition: color var(--pw-dur-fast) var(--pw-ease);
+}
+.pw-bottom-nav__item svg { transition: transform var(--pw-dur-fast) var(--pw-ease); }
+.pw-bottom-nav__item.is-active { color: var(--pw-primary); }
+.pw-bottom-nav__item.is-active svg { transform: translateY(-2px); }
+.pw-bottom-nav__item.is-active::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  width: 24px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--pw-primary);
+}
+.pw-bottom-nav__item:active svg { transform: scale(0.9); }
+
+/*RESPONSIVE*/
+
+/* Tablet: tighten spacing, shrink profile name */
+@media (max-width: 1200px) {
+  .pw-profile__name { max-width: 100px; }
+}
+
+/* Below 992px: switch to bottom nav, simplify top bar */
+@media (max-width: 992px) {
+  .pw-navbar__nav { display: none; }
+  .pw-navbar__inner { grid-template-columns: auto 1fr auto; }
+  .pw-profile__name,
+  .pw-profile__chevron { display: none; }
+  .pw-profile__trigger { padding: 0.25rem; min-width: 48px; justify-content: center; }
+
+  .pw-bottom-nav { display: flex; }
+  body { padding-bottom: calc(var(--pw-bottom-nav-h) + env(safe-area-inset-bottom, 0)); }
+}
+
+@media (max-width: 768px) {
+  :root { --pw-nav-h: 58px; }
+  .pw-brand-text__sub { display: none; }
+  .pw-brand-logo { width: 34px; height: 34px; font-size: 0.95rem; }
+}
+
+@media (max-width: 480px) {
+  .pw-navbar__inner { padding-inline: 0.85rem; }
+  .pw-brand-text__name { font-size: 0.92rem; }
+  .pw-bottom-nav__item span { font-size: 0.63rem; }
+}
+
+/* Landscape phones: slimmer bottom nav */
+@media (max-height: 480px) and (orientation: landscape) {
+  :root { --pw-bottom-nav-h: 56px; }
+  .pw-bottom-nav__item { font-size: 0.6rem; }
+}
+
+/* Large desktop: cap inner content, add breathing room */
+@media (min-width: 1440px) {
+  .pw-navbar__inner { padding-inline: 3rem; }
+}
+
+/* Safe-area for top navbar on notch devices in landscape */
+@supports (padding: max(0px)) {
+  .pw-navbar__inner {
+    padding-left: max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-left));
+    padding-right: max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-right));
+  }
+}

@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Signup</title>
+{% extends 'base.html' %}
+{% load static %}
 
+{% block content %}
     <style>
-
         .modal {
             position: fixed;
             top: 0;
@@ -24,12 +22,7 @@
             border-radius: 10px;
             width: 300px;
         }
-
     </style>
-
-</head>
-
-<body>
 
     <h2>Signup</h2>
 
@@ -101,6 +94,4 @@
         </div>
     </div>
     {% endif %}
-
-</body>
-</html>
+{% endblock content %}
