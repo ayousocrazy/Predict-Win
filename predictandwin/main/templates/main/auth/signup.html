@@ -1,97 +1,222 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block style %} 
+<link rel="stylesheet" href="{% static 'styles/auth.css' %}">
+{% endblock style %}
 
 {% block content %}
-    <style>
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+<div class="pw-scope pw-auth">
+  <aside class="pw-auth__stage" aria-hidden="true">
+    <div class="pw-pitch">
+      <div class="pw-pitch__stripe"></div>
+      <span class="pw-pitch__arc" style="width:520px;height:520px;top:-180px;right:-160px;"></span>
+      <span class="pw-pitch__arc" style="width:300px;height:300px;bottom:-120px;left:-100px;"></span>
+      <span class="pw-orb" style="width:70px;height:70px;top:22%;left:12%;"></span>
+      <span class="pw-orb" style="width:40px;height:40px;bottom:18%;right:18%;animation-delay:1.4s;"></span>
+    </div>
 
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 300px;
-        }
-    </style>
+    <div class="pw-stage__inner">
+      <span class="pw-stage__eyebrow"><span class="pw-dot"></span> Official TechTrix 2026 Event</span>
+      <h1 class="pw-stage__title">Predict<span>&amp; Win</span></h1>
+      <p class="pw-stage__tagline">Predict every match. Compete with friends. Become the champion.</p>
+    </div>
 
-    <h2>Signup</h2>
+    <div class="pw-stage__footer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11V5l-8-3-8 3v6c0 6.5 8 11 8 11z"/></svg>
+      Trusted by thousands of TechTrix predictors
+    </div>
+  </aside>
 
-    {% for message in messages %}
-        <p>{{ message }}</p>
-    {% endfor %}
+  <main class="pw-auth__form-side">
+    <div class="pw-card">
+      <div class="pw-card__header">
+        <span class="pw-card__brand">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+          Predict&amp;Win
+        </span>
+        <h1 class="pw-card__title">Create your account</h1>
+        <p class="pw-card__subtitle">Join the prediction league and start scoring points.</p>
+      </div>
 
-    <form method="POST">
+      {% if messages %}
+      <ul class="pw-messages">
+        {% for message in messages %}
+        <li class="pw-messages__item" data-tag="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <form method="POST" class="pw-form" novalidate>
         {% csrf_token %}
-        {{ signup_form.as_p }}
-        <button
-            type="submit"
-            name="send_otp"
-        >
-            Next
+
+        <!-- Username -->
+        <div class="pw-field {% if signup_form.username.errors %}pw-field--error{% endif %}" data-field="username">
+          <div class="pw-field__control">
+            <svg class="pw-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            {{ signup_form.username }}
+            <label class="pw-field__label" for="{{ signup_form.username.id_for_label }}">Username</label>
+          </div>
+          <div class="pw-status" data-state="idle">
+            <span class="pw-status__spinner"></span>
+            <span class="pw-status__text"></span>
+          </div>
+          {% if signup_form.username.errors %}
+          <span class="pw-field__error">{{ signup_form.username.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Full name -->
+        <div class="pw-field {% if signup_form.full_name.errors %}pw-field--error{% endif %}">
+          <div class="pw-field__control">
+            <svg class="pw-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/><circle cx="12" cy="8" r="4"/></svg>
+            {{ signup_form.full_name }}
+            <label class="pw-field__label" for="{{ signup_form.full_name.id_for_label }}">Full Name</label>
+          </div>
+          {% if signup_form.full_name.errors %}
+          <span class="pw-field__error">{{ signup_form.full_name.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Email -->
+        <div class="pw-field {% if signup_form.email.errors %}pw-field--error{% endif %}">
+          <div class="pw-field__control">
+            <svg class="pw-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            {{ signup_form.email }}
+            <label class="pw-field__label" for="{{ signup_form.email.id_for_label }}">Email</label>
+          </div>
+          {% if signup_form.email.errors %}
+          <span class="pw-field__error">{{ signup_form.email.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Password -->
+        <div class="pw-field {% if signup_form.password.errors %}pw-field--error{% endif %}" data-field="password">
+          <div class="pw-field__control">
+            <svg class="pw-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            {{ signup_form.password }}
+            <label class="pw-field__label" for="{{ signup_form.password.id_for_label }}">Password</label>
+            <button type="button" class="pw-field__toggle" aria-label="Show password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          {% if signup_form.password.errors %}
+          <span class="pw-field__error">{{ signup_form.password.errors.0 }}</span>
+          {% endif %}
+
+          <div class="pw-strength" data-level="">
+            <div class="pw-strength__bar">
+              <span class="pw-strength__seg"></span>
+              <span class="pw-strength__seg"></span>
+              <span class="pw-strength__seg"></span>
+            </div>
+            <p class="pw-strength__label">Password strength</p>
+            <ul class="pw-strength__rules">
+              <li class="pw-strength__rule" data-rule="length" data-met="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                8+ characters
+              </li>
+              <li class="pw-strength__rule" data-rule="upper" data-met="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Uppercase letter
+              </li>
+              <li class="pw-strength__rule" data-rule="lower" data-met="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Lowercase letter
+              </li>
+              <li class="pw-strength__rule" data-rule="number" data-met="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Number
+              </li>
+              <li class="pw-strength__rule" data-rule="special" data-met="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                Special character
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Confirm password -->
+        <div class="pw-field {% if signup_form.confirm_password.errors %}pw-field--error{% endif %}">
+          <div class="pw-field__control">
+            <svg class="pw-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            {{ signup_form.confirm_password }}
+            <label class="pw-field__label" for="{{ signup_form.confirm_password.id_for_label }}">Confirm Password</label>
+            <button type="button" class="pw-field__toggle" aria-label="Show password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          {% if signup_form.confirm_password.errors %}
+          <span class="pw-field__error">{{ signup_form.confirm_password.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <button type="submit" name="send_otp" class="pw-btn pw-btn--primary">
+          <span class="pw-btn__spinner"></span>
+          <span class="pw-btn__label">Next →</span>
         </button>
+      </form>
+
+      <p class="pw-card__footer">
+        Already have an account?
+        <a href="{% url 'login' %}" class="pw-link">Login</a>
+      </p>
+    </div>
+  </main>
+</div>
+
+<!--OTP MODAL — backend forms/fields untouched, only restyled.-->
+{% if show_otp_modal %}
+<div class="pw-scope pw-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="pw-otp-title">
+  <div class="pw-modal">
+    <div class="pw-modal__art">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+    </div>
+    <h2 class="pw-modal__title" id="pw-otp-title">Verify Your Email</h2>
+    <p class="pw-modal__subtitle">Enter the 6-digit verification code sent to <strong>{{ signup_form.email.value }}</strong></p>
+
+    <form method="POST" class="pw-otp-form">
+      {% csrf_token %}
+
+      <!-- Decorative entry boxes; JS mirrors input into the real field below -->
+      <div class="pw-otp">
+        <input class="pw-otp__box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1">
+        <input class="pw-otp__box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 2">
+        <input class="pw-otp__box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 3">
+        <input class="pw-otp__box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 4">
+        <input class="pw-otp__box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 5">
+        <input class="pw-otp__box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 6">
+      </div>
+
+      <!-- Real Django-rendered otp_form, kept 100% functional -->
+      <div class="pw-otp-native">
+        {{ otp_form.as_p }}
+      </div>
+
+      <p class="pw-modal__timer">Code expires in <strong data-otp-timer="90">01:30</strong></p>
+
+      <div class="pw-modal__actions">
+        <button type="submit" name="verify_otp" class="pw-btn pw-btn--primary">
+          <span class="pw-btn__spinner"></span>
+          <span class="pw-btn__label">Verify</span>
+        </button>
+      </div>
     </form>
 
+    <form method="POST" class="pw-otp-form">
+      {% csrf_token %}
+      <input type="hidden" name="username" value="{{ signup_form.username.value }}">
+      <input type="hidden" name="full_name" value="{{ signup_form.full_name.value }}">
+      <input type="hidden" name="email" value="{{ signup_form.email.value }}">
+      <input type="hidden" name="password" value="{{ signup_form.password.value }}">
+      <input type="hidden" name="confirm_password" value="{{ signup_form.confirm_password.value }}">
+      <button type="submit" name="send_otp" class="pw-modal__resend" data-otp-resend>
+        Resend code
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
 
-    {% if show_otp_modal %}
-    <div class="modal">
-        <div class="modal-content">
-            <h3>Verify OTP</h3>
-            <form method="POST">
-                {% csrf_token %}
-                {{ otp_form.as_p }}
-                <button
-                    type="submit"
-                    name="verify_otp"
-                >
-                    Verify OTP
-                </button>
-            </form>
-            <br>
-            <form method="POST">
-                {% csrf_token %}
-                <input
-                    type="hidden"
-                    name="username"
-                    value="{{ signup_form.username.value }}"
-                >
-                <input
-                    type="hidden"
-                    name="full_name"
-                    value="{{ signup_form.full_name.value }}"
-                >
-                <input
-                    type="hidden"
-                    name="email"
-                    value="{{ signup_form.email.value }}"
-                >
-                <input
-                    type="hidden"
-                    name="password"
-                    value="{{ signup_form.password.value }}"
-                >
-                <input
-                    type="hidden"
-                    name="confirm_password"
-                    value="{{ signup_form.confirm_password.value }}"
-                >
-                <button
-                    type="submit"
-                    name="send_otp"
-                >
-                    Resend OTP
-                </button>
-            </form>
-        </div>
-    </div>
-    {% endif %}
+<script src="{% static 'script/auth.js' %}"></script>
 {% endblock content %}

@@ -60,6 +60,7 @@
 
     <!-- Right: profile -->
     <div class="pw-navbar__right">
+    {% if user.is_authenticated %}
       <div class="pw-profile" id="pwProfile">
         <button class="pw-profile__trigger"
                 id="pwProfileTrigger"
@@ -98,6 +99,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
   </div>
 </header>
 

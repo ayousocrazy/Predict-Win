@@ -1,0 +1,898 @@
+/* ==========================================================================
+   Predict & Win — Auth System Stylesheet
+   Design language: light SaaS (Facebook / Notion / Linear / Discord / GitHub)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS
+   -------------------------------------------------------------------------- */
+:root {
+  /* Color */
+  --pw-bg: #F5F6F8;
+  --pw-card: #FFFFFF;
+  --pw-primary: #1877F2;
+  --pw-primary-dark: #145DBF;
+  --pw-primary-light: #E7F0FE;
+  --pw-secondary: #E4E6EB;
+  --pw-text: #1C1E21;
+  --pw-text-muted: #65676B;
+  --pw-border: #DADDE1;
+  --pw-success: #2CA84A;
+  --pw-success-bg: #E9F7EC;
+  --pw-error: #E4262C;
+  --pw-error-bg: #FDECEC;
+  --pw-warning: #F5A623;
+  --pw-pitch-1: #1E8E4F;
+  --pw-pitch-2: #167A42;
+
+  /* Radius */
+  --pw-radius-lg: 18px;
+  --pw-radius-md: 16px;
+  --pw-radius-sm: 10px;
+  --pw-radius-pill: 999px;
+
+  /* Shadow */
+  --pw-shadow-card: 0 20px 45px -15px rgba(24, 119, 242, 0.16), 0 2px 8px rgba(28, 30, 33, 0.04);
+  --pw-shadow-soft: 0 2px 10px rgba(28, 30, 33, 0.06);
+  --pw-shadow-float: 0 12px 28px -8px rgba(28, 30, 33, 0.12);
+
+  /* Type */
+  --pw-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Motion */
+  --pw-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --pw-fast: 150ms;
+  --pw-med: 280ms;
+  --pw-slow: 480ms;
+
+  /* Layout */
+  --pw-card-max: 460px;
+  --pw-touch: 48px;
+}
+
+/* --------------------------------------------------------------------------
+   2. RESET / BASE
+   -------------------------------------------------------------------------- */
+.pw-scope, .pw-scope * , .pw-scope *::before, .pw-scope *::after {
+  box-sizing: border-box;
+}
+
+.pw-scope {
+  font-family: var(--pw-font);
+  color: var(--pw-text);
+  background: var(--pw-bg);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.pw-scope a { color: inherit; text-decoration: none; }
+.pw-scope button { font-family: inherit; }
+.pw-scope input { font-family: inherit; }
+
+.pw-scope :focus-visible {
+  outline: 2px solid var(--pw-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pw-scope *, .pw-scope *::before, .pw-scope *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. PAGE / SPLIT LAYOUT
+   -------------------------------------------------------------------------- */
+.pw-auth {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  min-height: 100dvh;
+}
+
+.pw-auth__stage {
+  position: relative;
+  background: linear-gradient(160deg, var(--pw-pitch-1) 0%, var(--pw-pitch-2) 65%, #125C34 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 56px;
+  overflow: hidden;
+  color: #fff;
+}
+
+.pw-auth__form-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  padding-top: max(32px, env(safe-area-inset-top));
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
+  min-height: 100dvh;
+}
+
+/* --------------------------------------------------------------------------
+   4. STAGE ILLUSTRATION (signature element)
+   -------------------------------------------------------------------------- */
+.pw-stage__inner {
+  position: relative;
+  z-index: 2;
+  max-width: 420px;
+}
+
+.pw-stage__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  padding: 7px 14px;
+  border-radius: var(--pw-radius-pill);
+  margin-bottom: 28px;
+  animation: pwFadeUp var(--pw-slow) var(--pw-ease) both;
+}
+
+.pw-stage__eyebrow .pw-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7CFFB2;
+  box-shadow: 0 0 0 3px rgba(124, 255, 178, 0.25);
+}
+
+.pw-stage__title {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin: 0 0 18px;
+  animation: pwFadeUp var(--pw-slow) var(--pw-ease) both;
+  animation-delay: 60ms;
+}
+
+.pw-stage__title span {
+  display: block;
+  background: linear-gradient(90deg, #ffffff, #CFFFE0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pw-stage__tagline {
+  font-size: 16px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0 0 40px;
+  max-width: 340px;
+  animation: pwFadeUp var(--pw-slow) var(--pw-ease) both;
+  animation-delay: 120ms;
+}
+
+/* Pitch graphic */
+.pw-pitch {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.9;
+}
+
+.pw-pitch__stripe {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.045) 0px,
+    rgba(255, 255, 255, 0.045) 90px,
+    transparent 90px,
+    transparent 180px
+  );
+}
+
+.pw-pitch__arc {
+  position: absolute;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+}
+
+.pw-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), rgba(255,255,255,0) 70%);
+  animation: pwFloat 7s ease-in-out infinite;
+}
+
+/* Floating football */
+.pw-ball {
+  position: absolute;
+  top: 12%;
+  right: 8%;
+  width: 92px;
+  height: 92px;
+  animation: pwFloatBall 6.5s ease-in-out infinite;
+  filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.28));
+}
+
+/* Floating stat chips */
+.pw-chip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--pw-text);
+  padding: 12px 16px;
+  border-radius: var(--pw-radius-md);
+  box-shadow: var(--pw-shadow-float);
+  font-size: 13.5px;
+  font-weight: 700;
+  animation: pwFloat 6s ease-in-out infinite;
+}
+
+.pw-chip__icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pw-chip--predict { top: 8%; left: -4%; animation-delay: 0.2s; }
+.pw-chip--predict .pw-chip__icon { background: var(--pw-primary-light); color: var(--pw-primary); }
+
+.pw-chip--compete { bottom: 30%; right: -6%; animation-delay: 1.1s; }
+.pw-chip--compete .pw-chip__icon { background: #FFF1D6; color: #B8790C; }
+
+.pw-chip--champion { bottom: 8%; left: 2%; animation-delay: 0.6s; }
+.pw-chip--champion .pw-chip__icon { background: #E9F7EC; color: var(--pw-success); }
+
+.pw-stage__footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  animation: pwFadeUp var(--pw-slow) var(--pw-ease) both;
+  animation-delay: 180ms;
+}
+
+/* --------------------------------------------------------------------------
+   5. CARD
+   -------------------------------------------------------------------------- */
+.pw-card {
+  width: 100%;
+  max-width: var(--pw-card-max);
+  background: var(--pw-card);
+  border-radius: var(--pw-radius-lg);
+  box-shadow: var(--pw-shadow-card);
+  padding: 40px 36px;
+  animation: pwCardIn var(--pw-slow) var(--pw-ease) both;
+}
+
+.pw-card__header {
+  margin-bottom: 26px;
+  text-align: left;
+}
+
+.pw-card__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--pw-primary);
+  margin-bottom: 18px;
+}
+
+.pw-card__title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+}
+
+.pw-card__subtitle {
+  font-size: 14.5px;
+  color: var(--pw-text-muted);
+  margin: 0;
+}
+
+/* Django messages */
+.pw-messages {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pw-messages__item {
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 11px 14px;
+  border-radius: var(--pw-radius-sm);
+  background: var(--pw-primary-light);
+  color: var(--pw-primary-dark);
+  border: 1px solid rgba(24, 119, 242, 0.18);
+  animation: pwFadeUp var(--pw-med) var(--pw-ease) both;
+}
+
+.pw-messages__item[data-tag*="error"] {
+  background: var(--pw-error-bg);
+  color: var(--pw-error);
+  border-color: rgba(228, 38, 44, 0.2);
+}
+
+.pw-messages__item[data-tag*="success"] {
+  background: var(--pw-success-bg);
+  color: var(--pw-success);
+  border-color: rgba(44, 168, 74, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   6. FORM / FLOATING LABEL FIELDS
+   -------------------------------------------------------------------------- */
+.pw-form { display: flex; flex-direction: column; gap: 18px; }
+
+.pw-field {
+  position: relative;
+}
+
+.pw-field__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pw-field__icon {
+  position: absolute;
+  left: 15px;
+  width: 19px;
+  height: 19px;
+  color: var(--pw-text-muted);
+  pointer-events: none;
+  transition: color var(--pw-fast) var(--pw-ease);
+  z-index: 2;
+}
+
+/* Django-rendered inputs get this class applied via widget attrs OR wrapped */
+.pw-input {
+  width: 100%;
+  height: var(--pw-touch);
+  padding: 0 16px 0 44px;
+  font-size: 15px;
+  color: var(--pw-text);
+  background: #FBFBFC;
+  border: 1.5px solid var(--pw-border);
+  border-radius: var(--pw-radius-md);
+  transition: border-color var(--pw-fast) var(--pw-ease), box-shadow var(--pw-fast) var(--pw-ease), background var(--pw-fast) var(--pw-ease);
+}
+
+.pw-input::placeholder { color: transparent; }
+
+.pw-input:hover { border-color: #C7CBD1; }
+
+.pw-input:focus {
+  outline: none;
+  border-color: var(--pw-primary);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.14);
+}
+
+.pw-input:focus ~ .pw-field__icon,
+.pw-field--filled .pw-field__icon {
+  color: var(--pw-primary);
+}
+
+.pw-input--has-toggle { padding-right: 46px; }
+
+/* Floating label */
+.pw-field__label {
+  position: absolute;
+  left: 44px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  color: var(--pw-text-muted);
+  background: transparent;
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all var(--pw-fast) var(--pw-ease);
+}
+
+.pw-input:focus + .pw-field__label,
+.pw-field--filled .pw-field__label {
+  top: 0;
+  left: 38px;
+  transform: translateY(-50%) scale(0.82);
+  background: #FBFBFC;
+  color: var(--pw-primary);
+  font-weight: 600;
+}
+
+.pw-input:focus + .pw-field__label { background: #fff; }
+
+.pw-field--filled .pw-input { background: #fff; }
+
+/* Password toggle */
+.pw-field__toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--pw-text-muted);
+  cursor: pointer;
+  transition: background var(--pw-fast) var(--pw-ease), color var(--pw-fast) var(--pw-ease);
+}
+
+.pw-field__toggle:hover { background: var(--pw-secondary); color: var(--pw-text); }
+.pw-field__toggle svg { width: 18px; height: 18px; }
+
+/* Error text */
+.pw-field__error {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--pw-error);
+  margin-top: 6px;
+  padding-left: 4px;
+  animation: pwFadeUp var(--pw-fast) var(--pw-ease) both;
+}
+
+.pw-field--error .pw-input { border-color: var(--pw-error); }
+.pw-field--error .pw-input:focus { box-shadow: 0 0 0 4px rgba(228, 38, 44, 0.12); }
+
+/* Username availability status */
+.pw-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  margin-top: 7px;
+  padding-left: 4px;
+  min-height: 16px;
+}
+
+.pw-status[data-state="checking"] { color: var(--pw-text-muted); }
+.pw-status[data-state="available"] { color: var(--pw-success); }
+.pw-status[data-state="taken"] { color: var(--pw-error); }
+.pw-status[data-state="idle"] { visibility: hidden; }
+
+.pw-status__spinner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(101, 103, 107, 0.25);
+  border-top-color: var(--pw-text-muted);
+  animation: pwSpin 0.7s linear infinite;
+}
+
+/* Password strength */
+.pw-strength { margin-top: 10px; }
+
+.pw-strength__bar {
+  display: flex;
+  gap: 5px;
+  height: 5px;
+  margin-bottom: 9px;
+}
+
+.pw-strength__seg {
+  flex: 1;
+  border-radius: var(--pw-radius-pill);
+  background: var(--pw-secondary);
+  transition: background var(--pw-med) var(--pw-ease);
+}
+
+.pw-strength[data-level="weak"] .pw-strength__seg:nth-child(1) { background: var(--pw-error); }
+.pw-strength[data-level="medium"] .pw-strength__seg:nth-child(1),
+.pw-strength[data-level="medium"] .pw-strength__seg:nth-child(2) { background: var(--pw-warning); }
+.pw-strength[data-level="strong"] .pw-strength__seg { background: var(--pw-success); }
+
+.pw-strength__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--pw-text-muted);
+  margin-bottom: 8px;
+}
+
+.pw-strength[data-level="weak"] .pw-strength__label { color: var(--pw-error); }
+.pw-strength[data-level="medium"] .pw-strength__label { color: var(--pw-warning); }
+.pw-strength[data-level="strong"] .pw-strength__label { color: var(--pw-success); }
+
+.pw-strength__rules {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pw-strength__rule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--pw-text-muted);
+  transition: color var(--pw-fast) var(--pw-ease);
+}
+
+.pw-strength__rule svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--pw-border);
+  transition: color var(--pw-fast) var(--pw-ease);
+}
+
+.pw-strength__rule[data-met="true"] { color: var(--pw-text); }
+.pw-strength__rule[data-met="true"] svg { color: var(--pw-success); }
+
+/* Row for side-by-side fields on wider screens */
+.pw-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+@media (min-width: 480px) {
+  .pw-row--2 { grid-template-columns: 1fr 1fr; }
+}
+
+/* Utility row: remember + forgot */
+.pw-utility-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: -6px;
+}
+
+.pw-link {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--pw-primary);
+  position: relative;
+}
+
+.pw-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: var(--pw-primary);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--pw-med) var(--pw-ease);
+}
+
+.pw-link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* --------------------------------------------------------------------------
+   7. BUTTONS
+   -------------------------------------------------------------------------- */
+.pw-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: var(--pw-touch);
+  border: none;
+  border-radius: var(--pw-radius-md);
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform var(--pw-fast) var(--pw-ease), box-shadow var(--pw-fast) var(--pw-ease), filter var(--pw-fast) var(--pw-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pw-btn--primary {
+  color: #fff;
+  background: linear-gradient(135deg, #2E8CFB 0%, var(--pw-primary) 55%, var(--pw-primary-dark) 100%);
+  box-shadow: 0 10px 24px -8px rgba(24, 119, 242, 0.55);
+}
+
+.pw-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -8px rgba(24, 119, 242, 0.6); }
+.pw-btn--primary:active { transform: translateY(0); filter: brightness(0.96); }
+
+.pw-btn--ghost {
+  background: var(--pw-secondary);
+  color: var(--pw-text);
+}
+.pw-btn--ghost:hover { background: #D8DBE0; }
+.pw-btn--ghost:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.pw-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none !important; }
+
+.pw-btn__spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  animation: pwSpin 0.65s linear infinite;
+  display: none;
+}
+
+.pw-btn[data-loading="true"] .pw-btn__spinner { display: inline-block; }
+.pw-btn[data-loading="true"] .pw-btn__label { opacity: 0.85; }
+
+.pw-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  transform: scale(0);
+  animation: pwRipple 620ms var(--pw-ease);
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   8. FOOTER LINKS
+   -------------------------------------------------------------------------- */
+.pw-card__footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--pw-text-muted);
+}
+
+.pw-card__footer .pw-link { margin-left: 4px; }
+
+.pw-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  color: var(--pw-text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.pw-divider::before, .pw-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--pw-border);
+}
+
+/* --------------------------------------------------------------------------
+   9. OTP MODAL
+   -------------------------------------------------------------------------- */
+.pw-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 20, 24, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+  animation: pwFade var(--pw-med) var(--pw-ease) both;
+}
+
+.pw-modal {
+  width: 100%;
+  max-width: 420px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: var(--pw-radius-lg);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.35);
+  padding: 34px 32px 30px;
+  text-align: center;
+  animation: pwModalIn var(--pw-slow) var(--pw-ease) both;
+}
+
+.pw-modal__art {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 18px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--pw-primary-light), #DDEBFF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pw-primary);
+}
+
+.pw-modal__art svg { width: 40px; height: 40px; }
+
+.pw-modal__title {
+  font-size: 21px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.pw-modal__subtitle {
+  font-size: 14px;
+  color: var(--pw-text-muted);
+  line-height: 1.55;
+  margin: 0 0 26px;
+}
+
+.pw-modal__subtitle strong { color: var(--pw-text); }
+
+.pw-otp {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.pw-otp__box {
+  width: 46px;
+  height: 54px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--pw-text);
+  border: 1.5px solid var(--pw-border);
+  border-radius: var(--pw-radius-sm);
+  background: #FBFBFC;
+  transition: border-color var(--pw-fast) var(--pw-ease), box-shadow var(--pw-fast) var(--pw-ease), transform var(--pw-fast) var(--pw-ease);
+}
+
+.pw-otp__box:focus {
+  outline: none;
+  border-color: var(--pw-primary);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.14);
+  transform: translateY(-2px);
+}
+
+.pw-otp__box--filled { border-color: var(--pw-primary); background: #fff; }
+
+.pw-modal__timer {
+  font-size: 13.5px;
+  color: var(--pw-text-muted);
+  margin-bottom: 22px;
+}
+
+.pw-modal__timer strong {
+  color: var(--pw-primary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.pw-modal__actions { display: flex; flex-direction: column; gap: 10px; }
+
+.pw-modal__resend {
+  background: transparent;
+  border: none;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--pw-text-muted);
+  cursor: not-allowed;
+  padding: 8px;
+}
+
+.pw-modal__resend:not(:disabled) {
+  color: var(--pw-primary);
+  cursor: pointer;
+}
+.pw-modal__resend:not(:disabled):hover { text-decoration: underline; }
+
+/* Real Django otp_form is kept fully functional but visually hidden;
+   the decorative boxes above write into its input via JS. */
+.pw-otp-native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   10. ANIMATIONS
+   -------------------------------------------------------------------------- */
+@keyframes pwFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pwFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pwCardIn {
+  from { opacity: 0; transform: translateY(22px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pwModalIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pwFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(-2deg); }
+}
+@keyframes pwFloatBall {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(14deg); }
+}
+@keyframes pwSpin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pwRipple {
+  to { transform: scale(3.2); opacity: 0; }
+}
+@keyframes pwShake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+.pw-shake { animation: pwShake 480ms var(--pw-ease); }
+
+/* --------------------------------------------------------------------------
+   11. RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .pw-auth__stage { padding: 44px; }
+  .pw-stage__title { font-size: 34px; }
+}
+
+@media (max-width: 900px) {
+  .pw-auth { grid-template-columns: 1fr; }
+  .pw-auth__stage { display: none; }
+  .pw-auth__form-side { padding: 24px 16px; }
+}
+
+@media (max-width: 480px) {
+  .pw-card { padding: 30px 22px; border-radius: var(--pw-radius-md); box-shadow: var(--pw-shadow-soft); }
+  .pw-card__title { font-size: 21px; }
+  .pw-otp__box { width: 40px; height: 48px; font-size: 19px; }
+  .pw-otp { gap: 7px; }
+  .pw-strength__rules { grid-template-columns: 1fr; }
+  .pw-modal { padding: 28px 20px 24px; }
+}
+
+@media (max-width: 360px) {
+  .pw-otp__box { width: 36px; height: 44px; font-size: 17px; }
+  .pw-otp { gap: 6px; }
+  .pw-card { padding: 24px 16px; }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .pw-auth__form-side { align-items: flex-start; padding-top: 20px; padding-bottom: 20px; }
+  .pw-card { padding: 22px 24px; }
+  .pw-modal { max-height: 96dvh; }
+}
+
+/* Prevent iOS zoom on focus */
+@media (max-width: 480px) {
+  .pw-input, .pw-otp__box { font-size: 16px; }
+}

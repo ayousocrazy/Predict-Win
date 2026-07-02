@@ -1,28 +1,96 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
+{% extends 'base.html' %}
+{% load static %}
+{% block style %} 
+<link rel="stylesheet" href="{% static 'styles/login.css' %}">
+{% endblock style %}
 
-<body>
+{% block content %}
 
-    <h2>Login</h2>
+<div class="login-page">
 
-    {% for message in messages %}
-        <p>{{ message }}</p>
-    {% endfor %}
+  <!-- ============ ANIMATED BACKGROUND ============ -->
+  <div class="login-bg" aria-hidden="true">
+    <div class="login-bg__grid"></div>
+    <div class="login-bg__pitch-lines"></div>
+    <div class="login-blob login-blob--1"></div>
+    <div class="login-blob login-blob--2"></div>
+    <div class="login-blob login-blob--3"></div>
 
-    <form method="POST">
+    <div class="login-curve login-curve--1"></div>
+    <div class="login-curve login-curve--2"></div>
+  </div>
 
+  <!-- ============ CONTENT ============ -->
+  <main class="login-content">
+
+    <h1 class="login-welcome">Welcome Back!</h1>
+    <p class="login-welcome__sub">Continue your prediction journey and compete for the top of the leaderboard.</p>
+
+    <section class="login-card" aria-labelledby="loginCardTitle">
+
+      {% if messages %}
+      <div class="login-messages" role="alert">
+        {% for message in messages %}
+          <p class="login-message{% if message.tags %} {{ message.tags }}{% endif %}" data-tags="{{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="POST" class="login-form" id="loginForm" novalidate>
         {% csrf_token %}
 
-        {{ form.as_p }}
+        <div class="pw-field" data-field>
+          <span class="pw-field__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </span>
+          <label class="pw-field__label" for="{{ form.username.id_for_label }}">Username</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <div class="pw-field__error">{{ form.username.errors.0 }}</div>
+          {% endif %}
+        </div>
 
-        <button type="submit">
-            Login
+        <div class="pw-field" data-field data-password-field>
+          <span class="pw-field__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </span>
+          <label class="pw-field__label" for="{{ form.password.id_for_label }}">Password</label>
+          {{ form.password }}
+          <button type="button" class="pw-field__toggle" data-toggle-password aria-label="Show password" aria-pressed="false">
+            <svg class="icon-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <svg class="icon-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-3.27 2.84A9.14 9.14 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 4.06-5.94M1 1l22 22"></path><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path></svg>
+          </button>
+          {% if form.password.errors %}
+            <div class="pw-field__error">{{ form.password.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Forgot Password  -->
+        <!-- <div class="login-forgot">
+          <a href="#" class="login-link">Forgot Password?</a>
+        </div> -->
+
+        <button type="submit" class="login-btn" id="loginSubmitBtn">
+          <span class="login-btn__spinner" aria-hidden="true"></span>
+          <span class="login-btn__label">Login</span>
         </button>
+      </form>
 
-    </form>
+      <div class="login-divider" role="separator">
+        <span>OR</span>
+      </div>
 
-</body>
-</html>
+      <p class="login-tagline">Continue your football journey.</p>
+
+      <p class="login-switch">
+        Don't have an account?
+        <a href="{% url 'signup' %}" class="login-link login-link--strong">Sign Up</a>
+      </p>
+    </section>
+
+    <p class="login-footnote">Copyright © 2026 Predict&amp;Win · Official TechTrix 2026 Sub Event</p>
+  </main>
+</div>
+
+<script src="{% static 'script/login.js' %}" defer></script>
+{% endblock content %}
