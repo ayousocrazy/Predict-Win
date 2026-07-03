@@ -2,9 +2,185 @@
 {% load static %}
 {% block title %}Dashboard{% endblock %}
 {% block style %} 
-
+<link rel="stylesheet" href="{% static 'styles/dashboard.css' %}">
 {% endblock style %}
 
 {% block content %}
-Dashboard
+
+<main class="dash-page" id="main-content">
+
+  <!-- ============ BACKGROUND DECOR ============ -->
+  <div class="dash-decor" aria-hidden="true">
+    <div class="dash-decor__grid"></div>
+    <div class="dash-decor__blob dash-decor__blob--1"></div>
+    <div class="dash-decor__blob dash-decor__blob--2"></div>
+    <svg class="dash-decor__pitch" viewBox="0 0 400 200" fill="none">
+      <rect x="4" y="4" width="392" height="192" rx="10" stroke="#1877F2" stroke-opacity="0.06" stroke-width="2"/>
+      <circle cx="200" cy="100" r="38" stroke="#1877F2" stroke-opacity="0.06" stroke-width="2"/>
+      <line x1="200" y1="4" x2="200" y2="196" stroke="#1877F2" stroke-opacity="0.06" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <div class="container">
+
+    <!-- ============ HERO / GREETING ============ -->
+    <section class="dash-hero" data-reveal>
+      <div class="dash-hero__left">
+        <h1 class="dash-hero__greeting">Hello, {% if user.full_name %}{{user.full_name}}{% endif %}</h1>
+        <p class="dash-hero__sub">Ready to predict today's matches?</p>
+      </div>
+      <div class="dash-hero__right">
+        <div class="dash-hero__meta">
+          <span class="dash-hero__date" id="dashDate">Loading date…</span>
+          <span class="dash-hero__matchday">Matchday 4 · Group Stage</span>
+        </div>
+        <div class="dash-hero__illo" aria-hidden="true">
+          <span class="dash-hero__ball">⚽</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ UPCOMING MATCHES ============ -->
+    <section class="match-section" id="upcoming" aria-labelledby="upcomingTitle">
+      <div class="match-section__head" data-reveal>
+        <h2 id="upcomingTitle">Upcoming Matches</h2>
+        <span class="match-section__count">{{ upcoming_matches|length }} matches</span>
+      </div>
+
+      <div class="match-grid" id="upcomingGrid">
+        {% for match in upcoming_matches %}
+        <a href="{% url 'prediction' match.id %}"
+           class="match-card match-card--upcoming"
+           data-reveal
+           data-stage="{{ match.stage|lower|slugify }}"
+           data-countries="{{ match.country1.name|lower }} {{ match.country2.name|lower }}"
+           data-kickoff="{{ match.kickoff|date:'c' }}">
+
+          <div class="match-card__top">
+            <span class="stage-badge">{{ match.stage }}</span>
+            <span class="countdown-chip" data-countdown data-kickoff="{{ match.kickoff|date:'c' }}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
+              <span class="countdown-chip__text">Calculating…</span>
+            </span>
+          </div>
+
+          <div class="match-card__teams">
+            <div class="team">
+              <span class="team__flag-wrap">
+                <img class="team__flag" src="{{ match.country1.flag_url }}" alt="{{ match.country1.name }} flag" loading="lazy">
+              </span>
+              <span class="team__name">{{ match.country1.name }}</span>
+              <span class="team__code">{{ match.country1.code }}</span>
+            </div>
+
+            <div class="match-card__vs" aria-hidden="true">
+              <span class="vs-line"></span>
+              <span class="vs-badge">VS</span>
+              <span class="vs-line"></span>
+            </div>
+
+            <div class="team">
+              <span class="team__flag-wrap">
+                <img class="team__flag" src="{{ match.country2.flag_url }}" alt="{{ match.country2.name }} flag" loading="lazy">
+              </span>
+              <span class="team__name">{{ match.country2.name }}</span>
+              <span class="team__code">{{ match.country2.code }}</span>
+            </div>
+          </div>
+
+          <div class="match-card__bottom">
+            <div class="match-card__datetime">
+              <span>{{ match.kickoff|date:"D, d M" }}</span>
+              <span class="dot" aria-hidden="true">•</span>
+              <span>{{ match.kickoff|date:"g:i A" }}</span>
+            </div>
+            <div class="match-card__deadline">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span>Locks {{ match.prediction_deadline|date:"g:i A" }}</span>
+            </div>
+          </div>
+
+          <span class="match-card__arrow" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </span>
+        </a>
+        {% empty %}
+        <div class="empty-state" id="upcomingEmpty">
+          <div class="empty-state__illo" aria-hidden="true"><i class="ph-fill ph-soccer-ball"></i></div>
+          <p>No matches available.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ============ PAST MATCHES ============ -->
+    <section class="match-section" id="past" aria-labelledby="pastTitle">
+      <div class="match-section__head" data-reveal>
+        <h2 id="pastTitle">Past Matches</h2>
+        <span class="match-section__count">{{ past_matches|length }} matches</span>
+      </div>
+
+      <div class="match-grid" id="pastGrid">
+        {% for match in past_matches %}
+        <a href="{% url 'prediction' match.id %}"
+           class="match-card match-card--past"
+           data-reveal
+           data-stage="{{ match.stage|lower|slugify }}"
+           data-countries="{{ match.country1.name|lower }} {{ match.country2.name|lower }}">
+
+          <div class="match-card__top">
+            <span class="stage-badge stage-badge--muted">{{ match.stage }}</span>
+            <span class="status-chip status-chip--finished">Finished</span>
+          </div>
+
+          <div class="match-card__teams match-card__teams--result">
+            <div class="team">
+              <span class="team__flag-wrap team__flag-wrap--sm">
+                <img class="team__flag" src="{{ match.country1.flag_url }}" alt="{{ match.country1.name }} flag" loading="lazy">
+              </span>
+              <span class="team__name">{{ match.country1.name }}</span>
+            </div>
+
+            <div class="match-card__score">
+              <span class="score-num">{{ match.country1_score|default:"–" }}</span>
+              <span class="score-sep">:</span>
+              <span class="score-num">{{ match.country2_score|default:"–" }}</span>
+            </div>
+
+            <div class="team">
+              <span class="team__flag-wrap team__flag-wrap--sm">
+                <img class="team__flag" src="{{ match.country2.flag_url }}" alt="{{ match.country2.name }} flag" loading="lazy">
+              </span>
+              <span class="team__name">{{ match.country2.name }}</span>
+            </div>
+          </div>
+
+          <div class="match-card__bottom match-card__bottom--result">
+            <span class="match-card__datetime">{{ match.kickoff|date:"D, d M" }}</span>
+            {% if match.prediction_correct %}
+              <span class="prediction-tag prediction-tag--correct">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                Your Prediction Correct
+              </span>
+            {% else %}
+              <span class="prediction-tag prediction-tag--wrong">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+                Your Prediction Wrong
+              </span>
+            {% endif %}
+          </div>
+        </a>
+        {% empty %}
+        <div class="empty-state" id="pastEmpty">
+          <div class="empty-state__illo" aria-hidden="true"><i class="ph-fill ph-trophy"></i></div>
+          <p>No matches available.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script src="{% static 'script/dashboard.js' %}" defer></script>
 {% endblock content %}

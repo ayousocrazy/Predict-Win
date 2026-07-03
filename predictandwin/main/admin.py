@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, OTP
+from .models import User, OTP, Match
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -104,3 +104,5 @@ class OTPAdmin(admin.ModelAdmin):
     ordering = (
         "-created_at",
     )
+
+admin.site.register(Match)

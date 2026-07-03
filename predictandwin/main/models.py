@@ -8,6 +8,7 @@ from django.contrib.auth.models import (
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from api.models import Country
 
 
 # Custom User Manager
@@ -153,3 +154,37 @@ class OTP(models.Model):
 
     def __str__(self):
         return f"{self.email} - {self.code}"
+    
+class Match(models.Model):
+    STAGES = [
+        ("GRP", "Group Stage"),
+        ("R32", "Round of 32"),
+        ("R16", "Round of 16"),
+        ("QF", "Quarter Final"),
+        ("SF", "Semi Final"),
+        ("3RD", "Third Place"),
+        ("FIN", "Final"),
+    ]
+    country1 = models.ForeignKey(
+        Country,
+        on_delete=models.CASCADE,
+        related_name="country1"
+    )
+    country2 = models.ForeignKey(
+        Country,
+        on_delete=models.CASCADE,
+        related_name="country2"
+    )
+
+    kickoff = models.DateTimeField()
+    stage = models.CharField(
+        max_length=5,
+        choices=STAGES,
+        default="GRP"
+    )
+    prediction_deadline = models.DateTimeField()
+    is_locked = models.BooleanField(default=False)
+    class Meta:
+        ordering = ["kickoff"]
+    def __str__(self):
+        return f"{self.country1} vs {self.country2}"
