@@ -11,4 +11,7 @@ urlpatterns = [
     path('logout/', views.logoutPage, name="logout"),
     
     path('match/<str:pk>', views.matchPage, name="match"),
+
+    path('leaderboard/', views.leaderboardPage, name="leaderboard"),
+
 ]

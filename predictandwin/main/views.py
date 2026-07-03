@@ -290,3 +290,23 @@ def matchPage(request, pk):
     }
 
     return render(request, "main/predict.html", context)
+
+@login_required(login_url='login')
+def leaderboardPage(request):
+    users = User.objects.order_by('-points', 'username')
+
+    leaderboard = []
+
+    for rank, user in enumerate(users, start=1):
+        leaderboard.append({
+            "rank": rank,
+            "username": user.username,
+            "full_name": user.full_name,
+            "points": user.points,
+            "is_current_user": user == request.user,
+        })
+
+    context = {
+        "leaderboard": leaderboard
+    }
+    return render(request, 'main/leaderboard.html', context)
