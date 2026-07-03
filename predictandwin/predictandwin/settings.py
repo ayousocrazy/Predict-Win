@@ -117,13 +117,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 
+# 1. ALWAYS define STATIC_ROOT outside of the if/else block
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 if DEBUG:
     STATICFILES_DIRS = [
         BASE_DIR / 'static',
     ]
 else:
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
-
     STATICFILES_STORAGE = (
         'whitenoise.storage.CompressedManifestStaticFilesStorage'
     )
