@@ -117,14 +117,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 
-# 1. ALWAYS define STATIC_ROOT outside of the if/else block
+# STATIC_ROOT is where collectstatic gathers everything for deployment
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-if DEBUG:
-    STATICFILES_DIRS = [
-        BASE_DIR / 'static',
-    ]
-else:
+# STATICFILES_DIRS must be set regardless of DEBUG, otherwise collectstatic
+# won't pick up files from your project-level 'static' folder in production
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+if not DEBUG:
     STATICFILES_STORAGE = (
         'whitenoise.storage.CompressedManifestStaticFilesStorage'
     )
