@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, OTP, Match
+from .models import User, OTP, Match, Prediction, Result
+from .scoring import publish_result_and_award_points
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -106,3 +107,16 @@ class OTPAdmin(admin.ModelAdmin):
     )
 
 admin.site.register(Match)
+admin.site.register(Prediction)
+
+@admin.action(description="Publish result & award points")
+def publish_and_score(modeladmin, request, queryset):
+    for result in queryset:
+        publish_result_and_award_points(result)
+
+class ResultAdmin(admin.ModelAdmin):
+    list_display = ["match", "result_published", "points_awarded"]
+    actions = [publish_and_score]
+
+
+admin.site.register(Result, ResultAdmin)

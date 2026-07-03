@@ -10,4 +10,5 @@ urlpatterns = [
     path('signup/', views.signupPage, name="signup"),
     path('logout/', views.logoutPage, name="logout"),
     
+    path('match/<str:pk>', views.matchPage, name="match"),
 ]

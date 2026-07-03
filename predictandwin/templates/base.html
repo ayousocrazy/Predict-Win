@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="{% static 'styles/nav.css' %}" />
 {% block style %} {% endblock %}
 </head>
-<body>
+<body data-already-predicted="{{ already_predicted|yesno:'true,false' }}">
 
     {% include 'nav.html' %}
 

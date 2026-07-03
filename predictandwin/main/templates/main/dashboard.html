@@ -49,7 +49,7 @@
 
       <div class="match-grid" id="upcomingGrid">
         {% for match in upcoming_matches %}
-        <a href="{% url 'prediction' match.id %}"
+        <a href="{% url 'match' match.id %}"
            class="match-card match-card--upcoming"
            data-reveal
            data-stage="{{ match.stage|lower|slugify }}"
@@ -67,10 +67,10 @@
           <div class="match-card__teams">
             <div class="team">
               <span class="team__flag-wrap">
-                <img class="team__flag" src="{{ match.country1.flag_url }}" alt="{{ match.country1.name }} flag" loading="lazy">
+                <img class="team__flag" src="{{ match.country1.flag_png }}" alt="{{ match.country1.name }} flag" loading="lazy">
               </span>
               <span class="team__name">{{ match.country1.name }}</span>
-              <span class="team__code">{{ match.country1.code }}</span>
+              <span class="team__code">{{ match.country1.iso3 }}</span>
             </div>
 
             <div class="match-card__vs" aria-hidden="true">
@@ -81,10 +81,10 @@
 
             <div class="team">
               <span class="team__flag-wrap">
-                <img class="team__flag" src="{{ match.country2.flag_url }}" alt="{{ match.country2.name }} flag" loading="lazy">
+                <img class="team__flag" src="{{ match.country2.flag_png }}" alt="{{ match.country2.name }} flag" loading="lazy">
               </span>
               <span class="team__name">{{ match.country2.name }}</span>
-              <span class="team__code">{{ match.country2.code }}</span>
+              <span class="team__code">{{ match.country2.iso3 }}</span>
             </div>
           </div>
 
@@ -122,7 +122,7 @@
 
       <div class="match-grid" id="pastGrid">
         {% for match in past_matches %}
-        <a href="{% url 'prediction' match.id %}"
+        <a href="#"
            class="match-card match-card--past"
            data-reveal
            data-stage="{{ match.stage|lower|slugify }}"
@@ -136,7 +136,7 @@
           <div class="match-card__teams match-card__teams--result">
             <div class="team">
               <span class="team__flag-wrap team__flag-wrap--sm">
-                <img class="team__flag" src="{{ match.country1.flag_url }}" alt="{{ match.country1.name }} flag" loading="lazy">
+                <img class="team__flag" src="{{ match.country1.flag_png }}" alt="{{ match.country1.name }} flag" loading="lazy">
               </span>
               <span class="team__name">{{ match.country1.name }}</span>
             </div>
@@ -149,7 +149,7 @@
 
             <div class="team">
               <span class="team__flag-wrap team__flag-wrap--sm">
-                <img class="team__flag" src="{{ match.country2.flag_url }}" alt="{{ match.country2.name }} flag" loading="lazy">
+                <img class="team__flag" src="{{ match.country2.flag_png }}" alt="{{ match.country2.name }} flag" loading="lazy">
               </span>
               <span class="team__name">{{ match.country2.name }}</span>
             </div>
@@ -157,17 +157,6 @@
 
           <div class="match-card__bottom match-card__bottom--result">
             <span class="match-card__datetime">{{ match.kickoff|date:"D, d M" }}</span>
-            {% if match.prediction_correct %}
-              <span class="prediction-tag prediction-tag--correct">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
-                Your Prediction Correct
-              </span>
-            {% else %}
-              <span class="prediction-tag prediction-tag--wrong">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
-                Your Prediction Wrong
-              </span>
-            {% endif %}
           </div>
         </a>
         {% empty %}

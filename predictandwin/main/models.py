@@ -156,6 +156,11 @@ class OTP(models.Model):
         return f"{self.email} - {self.code}"
     
 class Match(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
     STAGES = [
         ("GRP", "Group Stage"),
         ("R32", "Round of 32"),
@@ -188,3 +193,117 @@ class Match(models.Model):
         ordering = ["kickoff"]
     def __str__(self):
         return f"{self.country1} vs {self.country2}"
+    
+class Result(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    WINNING_METHOD = [
+        ("90", "90 Minutes"),
+        ("ET", "Extra Time"),
+        ("PEN", "Penalty Shootout"),
+    ]
+    match = models.OneToOneField(
+        Match,
+        on_delete=models.CASCADE,
+        related_name="result"
+    )
+    full_time_country1 = models.PositiveSmallIntegerField(default=0)
+    full_time_country2 = models.PositiveSmallIntegerField(default=0)
+
+    half_time_country1 = models.PositiveSmallIntegerField(default=0)
+    half_time_country2 = models.PositiveSmallIntegerField(default=0)
+
+    first_team_to_score = models.ForeignKey(
+        Country,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    goal_in_first_15 = models.BooleanField(default=False)
+    both_teams_scored = models.BooleanField(default=False)
+    winning_method = models.CharField(
+        max_length=3,
+        choices=WINNING_METHOD,
+        default="90"
+    )
+    man_of_the_match = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    result_published = models.BooleanField(default=False)
+    points_awarded = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.match}"
+    
+class Prediction(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    goals_country1 = models.PositiveSmallIntegerField(null=True, blank=True)
+    goals_country2 = models.PositiveSmallIntegerField(null=True, blank=True)
+    WINNING_METHOD = [
+        ("90", "90 Minutes"),
+        ("ET", "Extra Time"),
+        ("PEN", "Penalty Shootout"),
+    ]
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    match = models.ForeignKey(
+        Match,
+        on_delete=models.CASCADE
+    )
+    predicted_winner = models.CharField(
+        max_length=20,
+        blank=True
+    )
+    full_time_country1 = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True
+    )
+    full_time_country2 = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True
+    )
+    half_time_country1 = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True
+    )
+    half_time_country2 = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True
+    )
+    first_team_to_score = models.CharField(
+        max_length=20,
+        blank=True
+    )
+    goal_in_first_15 = models.BooleanField(
+        null=True,
+        blank=True
+    )
+    both_teams_scored = models.BooleanField(
+        null=True,
+        blank=True
+    )
+    winning_method = models.CharField(
+        max_length=3,
+        choices=WINNING_METHOD,
+        blank=True
+    )
+    man_of_the_match = models.CharField(
+        max_length=100,
+        blank=True
+    )
+    points_earned = models.PositiveIntegerField(default=0)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["user", "match"]

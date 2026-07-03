@@ -400,6 +400,7 @@ body.dash-body {
 @media (max-width: 768px) {
   .dash-hero { flex-direction: column; align-items: flex-start; gap: 1.1rem; }
   .dash-hero__right { align-self: stretch; justify-content: space-between; }
+  .dash-hero__meta {align-items: flex-start;}
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .filter-bar { flex-direction: column; align-items: stretch; }
   .search-bar { max-width: none; }

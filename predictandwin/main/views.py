@@ -1,12 +1,13 @@
-from django.shortcuts import render, redirect, get_list_or_404
+from django.shortcuts import render, redirect, get_list_or_404, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 import random
+from django.utils import timezone
 
-from .models import User, OTP
+from .models import User, OTP, Match, Prediction
 from .forms import (
     SignupForm,
     OTPForm,
@@ -170,5 +171,122 @@ def logoutPage(request):
 
 @login_required(login_url='login')
 def dashboardPage(request):
-    context = {}
+    upcoming_matches = Match.objects.filter(
+        kickoff__gt=timezone.now()
+    ).order_by('kickoff')
+
+    past_matches = Match.objects.filter(
+        kickoff__lt=timezone.now()
+    ).order_by('-kickoff')
+
+    context = {
+        'upcoming_matches': upcoming_matches,
+        'past_matches': past_matches,
+    }
+
     return render(request, 'main/dashboard.html', context)
+
+@login_required(login_url='login')
+def matchPage(request, pk):
+    match = get_object_or_404(Match, pk=pk)
+
+    # Prevent prediction after deadline
+    if timezone.now() >= match.prediction_deadline or match.is_locked:
+        messages.error(request, "Prediction for this match is closed.")
+        return redirect("dashboard")
+
+    # Check if already predicted
+    existing_prediction = Prediction.objects.filter(
+        user=request.user,
+        match=match
+    ).first()
+
+    already_predicted = existing_prediction is not None
+
+    # POST REQUEST
+    if request.method == "POST":
+
+        # Prevent duplicate prediction
+        if already_predicted:
+            messages.error(request, "You already predicted this match.")
+            return redirect("match", pk=match.id)
+
+        # Collect data
+        winner = request.POST.get("winner")
+
+        full_time_country1 = request.POST.get("full_time_country1")
+        full_time_country2 = request.POST.get("full_time_country2")
+
+        half_time_country1 = request.POST.get("half_time_country1")
+        half_time_country2 = request.POST.get("half_time_country2")
+
+        goals_country1 = request.POST.get("goals_country1")
+        goals_country2 = request.POST.get("goals_country2")
+
+        both_teams_to_score = request.POST.get("both_teams_to_score")
+
+        first_team_to_score = request.POST.get("first_team_to_score")
+
+        winning_method = request.POST.get("winning_method")
+
+        man_of_the_match = request.POST.get("man_of_the_match")
+
+        # IMPORTANT:
+        # User must predict AT LEAST ONE thing
+        has_prediction = any([
+            winner,
+            full_time_country1,
+            full_time_country2,
+            half_time_country1,
+            half_time_country2,
+            goals_country1,
+            goals_country2,
+            both_teams_to_score,
+            first_team_to_score,
+            winning_method,
+            man_of_the_match,
+        ])
+
+        if not has_prediction:
+            messages.error(request, "Please make at least one prediction.")
+            return redirect("match", pk=match.id)
+
+        # Create prediction
+        Prediction.objects.create(
+            user=request.user,
+            match=match,
+
+            predicted_winner=winner if winner else "",
+
+            full_time_country1=full_time_country1 if full_time_country1 else None,
+            full_time_country2=full_time_country2 if full_time_country2 else None,
+
+            half_time_country1=half_time_country1 if half_time_country1 else None,
+            half_time_country2=half_time_country2 if half_time_country2 else None,
+
+            goals_country1=goals_country1 if goals_country1 else None,
+            goals_country2=goals_country2 if goals_country2 else None,
+
+            both_teams_scored=(
+                True if both_teams_to_score == "yes"
+                else False if both_teams_to_score == "no"
+                else None
+            ),
+
+            first_team_to_score=first_team_to_score if first_team_to_score else "",
+
+            winning_method=winning_method if winning_method else "",
+
+            man_of_the_match=man_of_the_match if man_of_the_match else "",
+        )
+
+        messages.success(request, "Prediction submitted successfully.")
+        return redirect("match", pk=match.id)
+
+    context = {
+        "match": match,
+        "already_predicted": already_predicted,
+        "existing_prediction": existing_prediction,
+    }
+
+    return render(request, "main/predict.html", context)

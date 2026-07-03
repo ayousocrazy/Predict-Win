@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+{% block style %} 
+<link rel="stylesheet" href="{% static 'styles/predict.css' %}">
+{% endblock style %}
+
+{% block content %}
+<div class="page">
+  <!-- Already-predicted banner, hidden unless the page (or JS demo lock) says so -->
+  <div class="locked-banner" id="lockedBanner" hidden>
+    <span class="locked-banner-icon">✓</span>
+    You've already predicted this match. Your submission is final.
+  </div>
+
+  <main class="prediction-page">
+
+    <form id="predictionForm" method="post" action="" novalidate
+          data-locked="{{ already_predicted|yesno:'true,false' }}"
+          data-already-predicted="{{ already_predicted|yesno:'true,false' }}">
+      {% csrf_token %}
+      <input type="hidden" name="match_id" id="matchIdInput" value="{{ match.id }}">
+
+    <!-- ============ MATCH HERO ============ -->
+    <section class="match-hero" aria-label="Match overview">
+      <div class="match-hero-top">
+        <span class="match-stage">{{match.stage}}</span>
+        <span class="match-date">{{ match.kickoff|date:"D, d M" }} &nbsp;·&nbsp; Kickoff {{ match.kickoff|date:"g:i A" }}</span>
+      </div>
+
+      <div class="teams-row">
+        <div class="team team-left">
+          <span class="flag flag-lg" role="img" aria-label="flag">{{match.country1.iso2}}</span>
+          <span class="team-name">{{match.country1.name}}</span>
+          <span class="team-code">{{match.country1.iso3}}</span>
+        </div>
+
+        <div class="vs-wrap">
+          <div class="vs-circle"><span>VS</span></div>
+        </div>
+
+        <div class="team team-right">
+          <span class="flag flag-lg" role="img" aria-label="flag">{{match.country2.iso2}}</span>
+          <span class="team-name">{{match.country2.name}}</span>
+          <span class="team-code">{{match.country2.iso3}}</span>
+        </div>
+      </div>
+
+      <div class="hero-bottom">
+        <div class="countdown-block">
+          <span class="countdown-label">Prediction closes in</span>
+                <div class="countdown-timer" id="countdownTimer" data-deadline="{{ match.prediction_deadline|date:'c' }}" aria-live="polite">
+        </div>
+
+        </div>
+      </div>
+    </section>
+
+    <div class="content-grid">
+
+      <!-- ---------- LEFT: PREDICTION CARDS ---------- -->
+      <div class="predictions-column">
+
+        <!-- 1. MATCH WINNER -->
+        <article class="prediction-card reveal" style="--delay:0">
+          <header class="card-header">
+            <div class="card-title">
+              <span class="card-icon">🎯</span>
+              <h3>Match Winner</h3>
+            </div>
+            <span class="points-badge">🏆 20 pts</span>
+          </header>
+
+          <div class="btn-row three-up" role="group" aria-label="Match winner">
+            <button type="button" class="select-btn" data-group="winner" data-value="{{ match.country1.name }}">
+              <span class="flag" role="img" aria-label="{{ match.country1.name }}">{{ match.country1.iso3 }}</span>
+              <span>{{ match.country1.name }}</span>
+            </button>
+            <button type="button" class="select-btn" data-group="winner" data-value="draw">
+              <span class="btn-glyph">🤝</span>
+              <span>Draw</span>
+            </button>
+            <button type="button" class="select-btn" data-group="winner" data-value="{{ match.country2.name }}">
+              <span class="flag" role="img" aria-label="{{ match.country2.name }}">{{ match.country2.iso3 }}</span>
+              <span>{{ match.country2.name }}</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- 2. FULL TIME SCORE -->
+        <article class="prediction-card reveal" style="--delay:1">
+          <header class="card-header">
+            <div class="card-title">
+              <span class="card-icon">⚽</span>
+              <h3>Full Time Score</h3>
+            </div>
+            <span class="points-badge">🏆 20 pts</span>
+          </header>
+
+          <div class="score-board">
+            <div class="score-team">
+              <span class="flag" role="img" aria-label="{{ match.country1.name }}">{{ match.country1.iso3 }}</span>
+              <span class="score-team-name">{{ match.country1.name }}</span>
+              <div class="stepper">
+                <button type="button" class="step-btn" data-target="ft-arg" data-action="minus" aria-label="Decrease {{ match.country1.name }} full time score">−</button>
+                <span class="step-value" id="ft-arg">0</span>
+                <button type="button" class="step-btn" data-target="ft-arg" data-action="plus" aria-label="Increase {{ match.country1.name }} full time score">+</button>
+              </div>
+            </div>
+
+            <span class="score-divider">:</span>
+
+            <div class="score-team">
+              <span class="flag" role="img" aria-label="{{ match.country2.name }}">{{ match.country2.iso3 }}</span>
+              <span class="score-team-name">{{ match.country2.name }}</span>
+              <div class="stepper">
+                <button type="button" class="step-btn" data-target="ft-bra" data-action="minus" aria-label="Decrease {{ match.country2.name }} full time score">−</button>
+                <span class="step-value" id="ft-bra">0</span>
+                <button type="button" class="step-btn" data-target="ft-bra" data-action="plus" aria-label="Increase {{ match.country2.name }} full time score">+</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 3. HALF TIME SCORE -->
+        <article class="prediction-card reveal" style="--delay:2">
+          <header class="card-header">
+            <div class="card-title">
+              <span class="card-icon">⏱️</span>
+              <h3>Half Time Score</h3>
+            </div>
+            <span class="points-badge">🏆 10 pts</span>
+          </header>
+
+          <div class="score-board">
+            <div class="score-team">
+              <span class="flag" role="img" aria-label="{{ match.country1.name }}">{{ match.country1.iso3 }}</span>
+              <span class="score-team-name">{{ match.country1.name }}</span>
+              <div class="stepper">
+                <button type="button" class="step-btn" data-target="ht-arg" data-action="minus" aria-label="Decrease {{ match.country1.name }} half time score">−</button>
+                <span class="step-value" id="ht-arg">0</span>
+                <button type="button" class="step-btn" data-target="ht-arg" data-action="plus" aria-label="Increase {{ match.country1.name }} half time score">+</button>
+              </div>
+            </div>
+
+            <span class="score-divider">:</span>
+
+            <div class="score-team">
+              <span class="flag" role="img" aria-label="{{ match.country2.name }}">{{ match.country2.iso3 }}</span>
+              <span class="score-team-name">{{ match.country2.name }}</span>
+              <div class="stepper">
+                <button type="button" class="step-btn" data-target="ht-bra" data-action="minus" aria-label="Decrease {{ match.country2.name }} half time score">−</button>
+                <span class="step-value" id="ht-bra">0</span>
+                <button type="button" class="step-btn" data-target="ht-bra" data-action="plus" aria-label="Increase {{ match.country2.name }} half time score">+</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 4 & 5. GOALS BY EACH TEAM -->
+        <article class="prediction-card reveal" style="--delay:3">
+          <header class="card-header">
+            <div class="card-title">
+              <span class="card-icon">🥅</span>
+              <h3>Goals Scored</h3>
+            </div>
+            <span class="points-badge">🏆 5+5 pts</span>
+          </header>
+
+          <div class="goals-grid">
+            <div class="goal-single">
+              <span class="flag" role="img" aria-label="{{ match.country1.name }}">{{ match.country1.iso3 }}</span>
+              <span class="score-team-name">Goals by {{ match.country1.name }}</span>
+              <div class="stepper">
+                <button type="button" class="step-btn" data-target="goals-arg" data-action="minus" aria-label="Decrease {{ match.country1.name }} goals">−</button>
+                <span class="step-value" id="goals-arg">0</span>
+                <button type="button" class="step-btn" data-target="goals-arg" data-action="plus" aria-label="Increase {{ match.country1.name }} goals">+</button>
+              </div>
+            </div>
+            <div class="goal-single">
+              <span class="flag" role="img" aria-label="{{ match.country2.name }}">{{ match.country2.iso3 }}</span>
+              <span class="score-team-name">Goals by {{ match.country2.name }}</span>
+              <div class="stepper">
+                <button type="button" class="step-btn" data-target="goals-bra" data-action="minus" aria-label="Decrease {{ match.country2.name }} goals">−</button>
+                <span class="step-value" id="goals-bra">0</span>
+                <button type="button" class="step-btn" data-target="goals-bra" data-action="plus" aria-label="Increase {{ match.country2.name }} goals">+</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 6. BOTH TEAMS TO SCORE -->
+        <article class="prediction-card reveal" style="--delay:4">
+          <header class="card-header">
+            <div class="card-title">
+              <span class="card-icon">🔁</span>
+              <h3>Both Teams to Score</h3>
+            </div>
+            <span class="points-badge">🏆 10 pts</span>
+          </header>
+
+          <div class="btn-row two-up pill-row" role="group" aria-label="Both teams to score">
+            <button type="button" class="select-btn pill-btn" data-group="btts" data-value="yes">Yes</button>
+            <button type="button" class="select-btn pill-btn" data-group="btts" data-value="no">No</button>
+          </div>
+        </article>
+
+        <!-- 7. FIRST TEAM TO SCORE -->
+        <article class="prediction-card reveal" style="--delay:5">
+          <header class="card-header">
+            <div class="card-title">
+              <span class="card-icon">🥇</span>
+              <h3>First Team to Score</h3>
+            </div>
+            <span class="points-badge">🏆 10 pts</span>
+          </header>
+
+          <div class="btn-row three-up" role="group" aria-label="First team to score">
+            <button type="button" class="select-btn" data-group="first-scorer" data-value="{{ match.country1.name }}">
+              <span class="flag" role="img" aria-label="{{ match.country1.name }}">{{ match.country1.iso3 }}</span>
+              <span>{{ match.country1.name }}</span>
+            </button>
+            <button type="button" class="select-btn" data-group="first-scorer" data-value="{{ match.country2.name }}">
+              <span class="flag" role="img" aria-label="{{ match.country2.name }}">{{ match.country2.iso3 }}</span>
+              <span>{{ match.country2.name }}</span>
+            </button>
+            <button type="button" class="select-btn" data-group="first-scorer" data-value="nogoal">
+              <span class="btn-glyph">🚫</span>
+              <span>No Goal</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- 8. WINNING METHOD -->
+        <article class="prediction-card reveal" style="--delay:6">
+          <header class="card-header">
+            <div class="card-title">
+              <span class="card-icon">🏁</span>
+              <h3>Winning Method</h3>
+            </div>
+            <span class="points-badge">🏆 10 pts</span>
+          </header>
+
+          <div class="btn-row three-up" role="group" aria-label="Winning method">
+            <button type="button" class="select-btn" data-group="method" data-value="90">90 Minutes</button>
+            <button type="button" class="select-btn" data-group="method" data-value="ET">Extra Time</button>
+            <button type="button" class="select-btn" data-group="method" data-value="PEN">Penalties</button>
+          </div>
+        </article>
+
+        <!-- 9. MAN OF THE MATCH -->
+        <article class="prediction-card reveal" style="--delay:7">
+          <header class="card-header">
+            <div class="card-title">
+              <span class="card-icon">⭐</span>
+              <h3>Man of the Match</h3>
+            </div>
+            <span class="points-badge">🏆 15 pts</span>
+          </header>
+
+          <div class="input-wrap">
+            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input type="text" id="motmInput" name="man_of_the_match" class="motm-input" placeholder="Enter player name" autocomplete="off">
+          </div>
+        </article>
+
+      </div>
+
+      <!-- ---------- RIGHT: STICKY SUMMARY (DESKTOP ONLY) ---------- -->
+      <aside class="summary-sidebar">
+        <div class="summary-card">
+          <h3 class="summary-title">Your Prediction</h3>
+
+          <ul class="summary-list">
+            <li><span class="summary-label">Winner</span><span class="summary-value" id="sumWinner">—</span></li>
+            <li><span class="summary-label">Full Time</span><span class="summary-value" id="sumFT">—</span></li>
+            <li><span class="summary-label">Half Time</span><span class="summary-value" id="sumHT">—</span></li>
+            <li><span class="summary-label">Goals (Arg–Bra)</span><span class="summary-value" id="sumGoals">—</span></li>
+            <li><span class="summary-label">Both to Score</span><span class="summary-value" id="sumBTTS">—</span></li>
+            <li><span class="summary-label">First to Score</span><span class="summary-value" id="sumFirstScorer">—</span></li>
+            <li><span class="summary-label">Winning Method</span><span class="summary-value" id="sumMethod">—</span></li>
+            <li><span class="summary-label">Man of the Match</span><span class="summary-value" id="sumMOTM">—</span></li>
+          </ul>
+
+          <div class="progress-block">
+            <div class="progress-head">
+              <span>Prediction Progress</span>
+              <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- ============ HIDDEN FIELDS ============ -->
+    <input type="hidden" name="winner" id="winnerInput" value="">
+    <input type="hidden" name="full_time_country1" id="ftArgInput" value="">
+    <input type="hidden" name="full_time_country2" id="ftBraInput" value="">
+    <input type="hidden" name="half_time_country1" id="htArgInput" value="">
+    <input type="hidden" name="half_time_country2" id="htBraInput" value="">
+    <input type="hidden" name="goals_country1" id="goalsArgInput" value="">
+    <input type="hidden" name="goals_country2" id="goalsBraInput" value="">
+    <input type="hidden" name="both_teams_to_score" id="bttsInput" value="">
+    <input type="hidden" name="first_team_to_score" id="firstScorerInput" value="">
+    <input type="hidden" name="winning_method" id="methodInput" value="">
+
+    </form>
+  </main>
+
+  <div class="bottom-bar">
+    <div class="bottom-bar-inner">
+      <button class="submit-btn" id="submitBtn" type="submit" form="predictionForm">
+        <span>Submit Prediction</span>
+      </button>
+      <p class="bottom-note" id="bottomNote">Predictions cannot be changed after kickoff.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{% static 'script/predict.js' %}" defer></script>
+{% endblock content %}
