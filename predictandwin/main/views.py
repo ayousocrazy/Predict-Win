@@ -13,6 +13,26 @@ from .forms import (
     OTPForm,
     LoginForm
 )
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+
+
+@require_GET
+def check_username(request):
+    username = request.GET.get("username", "").strip()
+    available = False
+    if username and len(username) >= 3:
+        available = not User.objects.filter(username__iexact=username).exists()
+    return JsonResponse({"available": available})
+
+
+@require_GET
+def check_email(request):
+    email = request.GET.get("email", "").strip()
+    available = False
+    if email:
+        available = not User.objects.filter(email__iexact=email).exists()
+    return JsonResponse({"available": available})
 
 
 def landingPage(request):
@@ -182,6 +202,7 @@ def dashboardPage(request):
     context = {
         'upcoming_matches': upcoming_matches,
         'past_matches': past_matches,
+        'active_page': "dashboard",
     }
 
     return render(request, 'main/dashboard.html', context)
@@ -293,20 +314,30 @@ def matchPage(request, pk):
 
 @login_required(login_url='login')
 def leaderboardPage(request):
-    users = User.objects.order_by('-points', 'username')
+    users = User.objects.order_by('-points', 'wrong_prediction', 'username')
 
     leaderboard = []
+    current_rank = 0
+    previous_key = None
 
-    for rank, user in enumerate(users, start=1):
+    for user in users:
+        key = (user.points, user.wrong_prediction)
+        if key != previous_key:
+            current_rank += 1   # advance by 1 per distinct group, not by position
+            previous_key = key
+
         leaderboard.append({
-            "rank": rank,
+            "rank": current_rank,
             "username": user.username,
             "full_name": user.full_name,
             "points": user.points,
+            "wrong_prediction": user.wrong_prediction,
             "is_current_user": user == request.user,
         })
 
     context = {
-        "leaderboard": leaderboard
+        "leaderboard": leaderboard,
+        "podium": leaderboard[:3],
+        'active_page': "leaderboard",
     }
     return render(request, 'main/leaderboard.html', context)

@@ -349,6 +349,12 @@
    -------------------------------------------------------------------------- */
 .pw-form { display: flex; flex-direction: column; gap: 18px; }
 
+.pw-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(20%);
+}
+
 .pw-field {
   position: relative;
 }

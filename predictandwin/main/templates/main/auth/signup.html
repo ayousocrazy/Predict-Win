@@ -67,7 +67,7 @@
         </div>
 
         <!-- Full name -->
-        <div class="pw-field {% if signup_form.full_name.errors %}pw-field--error{% endif %}">
+        <div class="pw-field {% if signup_form.full_name.errors %}pw-field--error{% endif %}" data-field="full_name">
           <div class="pw-field__control">
             <svg class="pw-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/><circle cx="12" cy="8" r="4"/></svg>
             {{ signup_form.full_name }}
@@ -79,11 +79,15 @@
         </div>
 
         <!-- Email -->
-        <div class="pw-field {% if signup_form.email.errors %}pw-field--error{% endif %}">
+        <div class="pw-field {% if signup_form.email.errors %}pw-field--error{% endif %}" data-field="email">
           <div class="pw-field__control">
             <svg class="pw-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
             {{ signup_form.email }}
             <label class="pw-field__label" for="{{ signup_form.email.id_for_label }}">Email</label>
+          </div>
+          <div class="pw-status" data-state="idle">
+            <span class="pw-status__spinner"></span>
+            <span class="pw-status__text"></span>
           </div>
           {% if signup_form.email.errors %}
           <span class="pw-field__error">{{ signup_form.email.errors.0 }}</span>
@@ -137,7 +141,7 @@
         </div>
 
         <!-- Confirm password -->
-        <div class="pw-field {% if signup_form.confirm_password.errors %}pw-field--error{% endif %}">
+        <div class="pw-field {% if signup_form.confirm_password.errors %}pw-field--error{% endif %}" data-field="confirm_password">
           <div class="pw-field__control">
             <svg class="pw-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
             {{ signup_form.confirm_password }}
@@ -151,7 +155,7 @@
           {% endif %}
         </div>
 
-        <button type="submit" name="send_otp" class="pw-btn pw-btn--primary">
+        <button type="submit" name="send_otp" class="pw-btn pw-btn--primary" disabled>
           <span class="pw-btn__spinner"></span>
           <span class="pw-btn__label">Next →</span>
         </button>
@@ -196,7 +200,7 @@
       <p class="pw-modal__timer">Code expires in <strong data-otp-timer="90">01:30</strong></p>
 
       <div class="pw-modal__actions">
-        <button type="submit" name="verify_otp" class="pw-btn pw-btn--primary">
+        <button type="submit" name="verify_otp" class="pw-btn pw-btn--primary" data-otp-verify disabled>
           <span class="pw-btn__spinner"></span>
           <span class="pw-btn__label">Verify</span>
         </button>

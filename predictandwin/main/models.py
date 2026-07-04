@@ -90,6 +90,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     points = models.PositiveIntegerField(
         default=0
     )
+    wrong_prediction = models.PositiveIntegerField(
+        default=0
+    )
     is_active = models.BooleanField(
         default=True
     )

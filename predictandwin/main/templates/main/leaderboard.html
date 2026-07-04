@@ -32,7 +32,7 @@
       </div>
 
       <p class="lb-eyebrow">TechTrix 2026 · FIFA World Cup Prediction Event</p>
-      <h1 class="lb-title">🏆 Leaderboard</h1>
+      <h1 class="lb-title">Leaderboard</h1>
       <p class="lb-subtitle">Top Predictors of FIFA World Cup 2026</p>
 
       <div class="lb-hero__stats">
@@ -53,56 +53,57 @@
     </div>
   </section>
 
-  <!-- ============ PODIUM (TOP 3) ============ -->
   {% if leaderboard %}
   <section class="lb-podium" aria-label="Top 3 predictors">
     <div class="lb-podium__track">
 
-      <!-- Silver — Rank 2 (left) -->
-      {% for user in leaderboard %}
-        {% if user.rank == 2 %}
-        <div class="lb-podium-card lb-podium-card--silver reveal" style="--reveal-delay:.1s">
-          {% if user.is_current_user %}<span class="lb-you-badge lb-you-badge--podium">YOU</span>{% endif %}
-          <span class="lb-podium-card__medal">🥈</span>
-          <span class="lb-podium-card__rank">2</span>
-          <span class="lb-podium-card__name">{{ user.full_name }}</span>
-          <span class="lb-podium-card__username">@{{ user.username }}</span>
-          <span class="lb-podium-card__points">{{ user.points }} <small>pts</small></span>
-          <div class="lb-podium-card__block lb-podium-card__block--silver"></div>
-        </div>
-        {% endif %}
-      {% endfor %}
+      <!-- Left slot (2nd physical position) -->
+      {% with user=podium.1 %}
+      {% if user %}
+      <div class="lb-podium-card lb-podium-card--{% if user.rank == 1 %}gold{% elif user.rank == 2 %}silver{% else %}bronze{% endif %} reveal" style="--reveal-delay:.1s">
+        {% if user.is_current_user %}<span class="lb-you-badge lb-you-badge--podium">YOU</span>{% endif %}
+        <span class="lb-podium-card__medal">{% if user.rank == 1 %}🥇{% elif user.rank == 2 %}🥈{% else %}🥉{% endif %}</span>
+        <span class="lb-podium-card__rank">{{ user.rank }}</span>
+        <span class="lb-podium-card__name">{{ user.full_name }}</span>
+        <span class="lb-podium-card__username">@{{ user.username }}</span>
+        <span class="lb-podium-card__username">Wrong Prediction: {{ user.wrong_prediction }}</span>
+        <span class="lb-podium-card__points">{{ user.points }} <small>pts</small></span>
+        <div class="lb-podium-card__block lb-podium-card__block--{% if user.rank == 1 %}gold{% elif user.rank == 2 %}silver{% else %}bronze{% endif %}"></div>
+      </div>
+      {% endif %}
+      {% endwith %}
 
-      <!-- Gold — Rank 1 (center, elevated) -->
-      {% for user in leaderboard %}
-        {% if user.rank == 1 %}
-        <div class="lb-podium-card lb-podium-card--gold reveal" style="--reveal-delay:0s">
-          {% if user.is_current_user %}<span class="lb-you-badge lb-you-badge--podium">YOU</span>{% endif %}
-          <span class="lb-podium-card__crown" aria-hidden="true">👑</span>
-          <span class="lb-podium-card__medal">🥇</span>
-          <span class="lb-podium-card__rank">1</span>
-          <span class="lb-podium-card__name">{{ user.full_name }}</span>
-          <span class="lb-podium-card__username">@{{ user.username }}</span>
-          <span class="lb-podium-card__points">{{ user.points }} <small>pts</small></span>
-          <div class="lb-podium-card__block lb-podium-card__block--gold"></div>
-        </div>
-        {% endif %}
-      {% endfor %}
+      <!-- Center slot (1st physical position) -->
+      {% with user=podium.0 %}
+      {% if user %}
+      <div class="lb-podium-card lb-podium-card--gold reveal" style="--reveal-delay:0s">
+        {% if user.is_current_user %}<span class="lb-you-badge lb-you-badge--podium">YOU</span>{% endif %}
+        <span class="lb-podium-card__medal">🥇</span>
+        <span class="lb-podium-card__rank">{{ user.rank }}</span>
+        <span class="lb-podium-card__name">{{ user.full_name }}</span>
+        <span class="lb-podium-card__username">@{{ user.username }}</span>
+        <span class="lb-podium-card__username">Wrong Prediction: {{ user.wrong_prediction }}</span>
+        <span class="lb-podium-card__points">{{ user.points }} <small>pts</small></span>
+        <div class="lb-podium-card__block lb-podium-card__block--gold"></div>
+      </div>
+      {% endif %}
+      {% endwith %}
 
-      <!-- Bronze — Rank 3 (right) -->
-      {% for user in leaderboard %}
-        {% if user.rank == 3 %}
-        <div class="lb-podium-card lb-podium-card--bronze reveal" style="--reveal-delay:.2s">
-          {% if user.is_current_user %}<span class="lb-you-badge lb-you-badge--podium">YOU</span>{% endif %}
-          <span class="lb-podium-card__medal">🥉</span>
-          <span class="lb-podium-card__rank">3</span>
-          <span class="lb-podium-card__name">{{ user.full_name }}</span>
-          <span class="lb-podium-card__username">@{{ user.username }}</span>
-          <span class="lb-podium-card__points">{{ user.points }} <small>pts</small></span>
-          <div class="lb-podium-card__block lb-podium-card__block--bronze"></div>
-        </div>
-        {% endif %}
-      {% endfor %}
+      <!-- Right slot (3rd physical position) -->
+      {% with user=podium.2 %}
+      {% if user %}
+      <div class="lb-podium-card lb-podium-card--{% if user.rank == 1 %}gold{% elif user.rank == 2 %}silver{% else %}bronze{% endif %} reveal" style="--reveal-delay:.2s">
+        {% if user.is_current_user %}<span class="lb-you-badge lb-you-badge--podium">YOU</span>{% endif %}
+        <span class="lb-podium-card__medal">{% if user.rank == 1 %}🥇{% elif user.rank == 2 %}🥈{% else %}🥉{% endif %}</span>
+        <span class="lb-podium-card__rank">{{ user.rank }}</span>
+        <span class="lb-podium-card__name">{{ user.full_name }}</span>
+        <span class="lb-podium-card__username">@{{ user.username }}</span>
+        <span class="lb-podium-card__username">Wrong Prediction: {{ user.wrong_prediction }}</span>
+        <span class="lb-podium-card__points">{{ user.points }} <small>pts</small></span>
+        <div class="lb-podium-card__block lb-podium-card__block--{% if user.rank == 1 %}gold{% elif user.rank == 2 %}silver{% else %}bronze{% endif %}"></div>
+      </div>
+      {% endif %}
+      {% endwith %}
 
     </div>
   </section>
@@ -125,7 +126,6 @@
       </div>
 
       {% for user in leaderboard %}
-        {% if user.rank > 3 %}
         <div class="lb-row reveal {% if user.is_current_user %}lb-row--current{% endif %}"
              role="row"
              {% if user.is_current_user %}
@@ -143,7 +143,6 @@
           <span class="lb-row__fullname" role="cell">{{ user.full_name }}</span>
           <span class="lb-row__points" role="cell">{{ user.points }} <small>pts</small></span>
         </div>
-        {% endif %}
       {% empty %}
         <div class="lb-empty">
           <p>No predictions yet. Be the first to climb the board.</p>

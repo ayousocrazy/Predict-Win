@@ -1,18 +1,42 @@
 (function () {
   "use strict";
 
+  var signupState = {
+    username: false,
+    email: false,
+    fullName: false,
+    password: false,
+    confirmPassword: false
+  };
+
   document.addEventListener("DOMContentLoaded", function () {
     initFloatingFields();
     initPasswordToggles();
     initUsernameAvailability();
+    initEmailAvailability();
+    initFullNameValidation();
     initPasswordStrength();
+    initPasswordMatch();
     initOtpBoxes();
     initOtpCountdown();
     initButtonEffects();
+    refreshSignupButton();
   });
 
   function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
   function qsa(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+
+  function refreshSignupButton() {
+    var btn = qs("form.pw-form button[name='send_otp']");
+    if (!btn) return;
+    var ready =
+      signupState.username &&
+      signupState.email &&
+      signupState.fullName &&
+      signupState.password &&
+      signupState.confirmPassword;
+    btn.disabled = !ready;
+  }
 
   function initFloatingFields() {
     qsa(".pw-field").forEach(function (field) {
@@ -67,22 +91,25 @@
     var timer = null;
     var currentRequest = 0;
 
-    function setState(state, message) {
+    function setState(state, message, isValid) {
       status.setAttribute("data-state", state);
       if (text) text.textContent = message || "";
       if (spinner) spinner.style.display = state === "checking" ? "inline-block" : "none";
+      signupState.username = !!isValid;
+      refreshSignupButton();
     }
 
     input.addEventListener("input", function () {
       var value = input.value.trim();
       window.clearTimeout(timer);
 
-      if (!value) { setState("idle", ""); return; }
-      if (value.length < 3) { setState("idle", ""); return; }
+      if (!value) { setState("idle", "", false); return; }
+      if (value.length < 3) { setState("idle", "", false); return; }
+
+      setState("checking", "Checking availability…", false);
 
       timer = window.setTimeout(function () {
         var requestId = ++currentRequest;
-        setState("checking", "Checking availability…");
 
         fetch("/check-username/?username=" + encodeURIComponent(value), {
           headers: { "X-Requested-With": "XMLHttpRequest" }
@@ -91,17 +118,87 @@
           .then(function (data) {
             if (requestId !== currentRequest) return; // stale response
             if (data && data.available) {
-              setState("available", "Username available");
+              setState("available", "Username available", true);
             } else {
-              setState("taken", "Username already taken");
+              setState("taken", "Username already taken", false);
             }
           })
           .catch(function () {
             if (requestId !== currentRequest) return;
-            setState("idle", "");
+            setState("idle", "", false);
           });
       }, 500);
     });
+  }
+
+  /*Live email availability check*/
+  function initEmailAvailability() {
+    var field = qs('[data-field="email"]');
+    if (!field) return;
+
+    var input = field.querySelector("input");
+    var status = field.querySelector(".pw-status");
+    if (!input || !status) return;
+
+    var spinner = status.querySelector(".pw-status__spinner");
+    var text = status.querySelector(".pw-status__text");
+    var timer = null;
+    var currentRequest = 0;
+    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function setState(state, message, isValid) {
+      status.setAttribute("data-state", state);
+      if (text) text.textContent = message || "";
+      if (spinner) spinner.style.display = state === "checking" ? "inline-block" : "none";
+      signupState.email = !!isValid;
+      refreshSignupButton();
+    }
+
+    input.addEventListener("input", function () {
+      var value = input.value.trim();
+      window.clearTimeout(timer);
+
+      if (!value || !emailPattern.test(value)) { setState("idle", "", false); return; }
+
+      setState("checking", "Checking availability…", false);
+
+      timer = window.setTimeout(function () {
+        var requestId = ++currentRequest;
+
+        fetch("/check-email/?email=" + encodeURIComponent(value), {
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (requestId !== currentRequest) return;
+            if (data && data.available) {
+              setState("available", "Email available", true);
+            } else {
+              setState("taken", "Email already registered", false);
+            }
+          })
+          .catch(function () {
+            if (requestId !== currentRequest) return;
+            setState("idle", "", false);
+          });
+      }, 500);
+    });
+  }
+
+  /*Full name completeness*/
+  function initFullNameValidation() {
+    var field = qs('[data-field="full_name"]');
+    if (!field) return;
+    var input = field.querySelector("input");
+    if (!input) return;
+
+    function check() {
+      signupState.fullName = input.value.trim().length > 0;
+      refreshSignupButton();
+    }
+
+    input.addEventListener("input", check);
+    check();
   }
 
   /*Password strength meter*/
@@ -151,7 +248,31 @@
           : level === "medium" ? "Medium strength"
           : "Weak password";
       }
+
+      signupState.password = checks.length;
+      refreshSignupButton();
     });
+  }
+
+  /*Confirm password match*/
+  function initPasswordMatch() {
+    var pwField = qs('[data-field="password"]');
+    var confirmField = qs('[data-field="confirm_password"]');
+    if (!pwField || !confirmField) return;
+
+    var pwInput = pwField.querySelector("input");
+    var confirmInput = confirmField.querySelector("input");
+    if (!pwInput || !confirmInput) return;
+
+    function check() {
+      var matches = confirmInput.value.length > 0 && confirmInput.value === pwInput.value;
+      signupState.confirmPassword = matches;
+      confirmField.classList.toggle("pw-field--error", confirmInput.value.length > 0 && !matches);
+      refreshSignupButton();
+    }
+
+    pwInput.addEventListener("input", check);
+    confirmInput.addEventListener("input", check);
   }
 
   /*OTP boxes*/
@@ -162,10 +283,17 @@
     var boxes = qsa(".pw-otp__box", wrap);
     var nativeContainer = qs(".pw-otp-native");
     var nativeInput = nativeContainer ? nativeContainer.querySelector("input") : null;
+    var verifyBtn = qs("[data-otp-verify]");
 
     function syncNative() {
       var code = boxes.map(function (b) { return b.value; }).join("");
       if (nativeInput) nativeInput.value = code;
+    }
+
+    function updateVerifyButton() {
+      if (!verifyBtn) return;
+      var complete = boxes.every(function (b) { return b.value && b.value.length === 1; });
+      verifyBtn.disabled = !complete;
     }
 
     boxes.forEach(function (box, index) {
@@ -174,6 +302,7 @@
         box.classList.toggle("pw-otp__box--filled", !!box.value);
         if (box.value && boxes[index + 1]) boxes[index + 1].focus();
         syncNative();
+        updateVerifyButton();
       });
 
       box.addEventListener("keydown", function (e) {
@@ -195,6 +324,7 @@
         var next = boxes[Math.min(pasted.length, boxes.length - 1)];
         if (next) next.focus();
         syncNative();
+        updateVerifyButton();
       });
     });
 
@@ -208,6 +338,8 @@
         }
       });
     }
+
+    updateVerifyButton();
   }
 
   /*OTP countdown timer*/
@@ -259,7 +391,8 @@
         render();
     }, 1000);
     }
-  /*Button ripple + loading-state on submit*/
+
+  /*Button ripple + loading-state + disable-on-submit*/
   function initButtonEffects() {
     qsa(".pw-btn").forEach(function (btn) {
       btn.addEventListener("click", function (e) {
@@ -278,7 +411,12 @@
     qsa("form.pw-form, form.pw-otp-form").forEach(function (form) {
       form.addEventListener("submit", function () {
         var submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) submitBtn.setAttribute("data-loading", "true");
+        if (!submitBtn) return;
+
+        submitBtn.setAttribute("data-loading", "true");
+        window.setTimeout(function () {
+          submitBtn.disabled = true;
+        }, 0);
       });
     });
   }
