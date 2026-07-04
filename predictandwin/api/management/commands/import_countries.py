@@ -52,7 +52,6 @@ class Command(BaseCommand):
                     iso3=c.alpha_3,
                     flag_png=f"https://flagcdn.com/w320/{iso2.lower()}.png",
                     flag_svg=f"https://flagcdn.com/{iso2.lower()}.svg",
-                    current_stage="R16",
                 )
             )
 
