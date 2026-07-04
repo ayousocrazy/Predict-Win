@@ -16,4 +16,6 @@ urlpatterns = [
 
     path("check-username/", views.check_username, name="check_username"),
     path("check-email/", views.check_email, name="check_email"),
+
+    path("result/<uuid:match_id>/", views.match_result, name="match_result"),
 ]

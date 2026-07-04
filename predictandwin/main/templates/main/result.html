@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ match.country1.name }} vs {{ match.country2.name }} · Result · Predict&Win{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'styles/result.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="res-page">
+
+  <!-- Decorative background: pitch lines, glows, floating ball outlines -->
+  <div class="res-bg" aria-hidden="true">
+    <div class="res-bg__glow res-bg__glow--a"></div>
+    <div class="res-bg__glow res-bg__glow--b"></div>
+    <svg class="res-bg__pitch" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+      <line x1="600" y1="0" x2="600" y2="800" />
+      <circle cx="600" cy="400" r="110" />
+      <circle cx="600" cy="400" r="3" />
+      <rect x="0" y="220" width="140" height="360" />
+      <rect x="1060" y="220" width="140" height="360" />
+    </svg>
+    <svg class="res-bg__ball res-bg__ball--1" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18"/><path d="M20 6l9 6-3 11H14l-3-11z"/></svg>
+    <svg class="res-bg__ball res-bg__ball--2" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18"/><path d="M20 6l9 6-3 11H14l-3-11z"/></svg>
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <section class="res-hero reveal">
+    <div class="res-hero__top">
+      <span class="res-stage-badge">{{ match.stage }}</span>
+      {% if result.result_published %}
+      <span class="res-published-badge">
+        <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Result Published
+      </span>
+      {% endif %}
+    </div>
+    <h1 class="res-title">Official Match Result</h1>
+    <p class="res-subtitle">FIFA World Cup 2026</p>
+  </section>
+
+  <!-- ============ MAIN RESULT CARD ============ -->
+  <section class="res-card reveal" aria-label="Final score">
+
+    <div class="res-team {% if result.full_time_country1 > result.full_time_country2 %}res-team--winner{% endif %}">
+      <img class="res-team__flag" src="{{ match.country1.flag_png }}" alt="{{ match.country1.name }} flag" width="72" height="48">
+      <span class="res-team__name">{{ match.country1.name }}</span>
+      <span class="res-team__iso">{{ match.country1.iso3 }}</span>
+      {% if result.full_time_country1 > result.full_time_country2 %}
+      <span class="res-team__winner-tag">Winner</span>
+      {% endif %}
+    </div>
+
+    <div class="res-score">
+      <div class="res-score__numbers">
+        <span class="res-score__num">{{ result.full_time_country1 }}</span>
+        <span class="res-score__sep">—</span>
+        <span class="res-score__num">{{ result.full_time_country2 }}</span>
+      </div>
+      <span class="res-score__label">Full Time</span>
+      <div class="res-score__kickoff">
+        <span>{{ match.kickoff|date:"D, d M Y" }}</span>
+        <span class="res-score__kickoff-dot">·</span>
+        <span>{{ match.kickoff|time:"H:i" }}</span>
+      </div>
+    </div>
+
+    <div class="res-team {% if result.full_time_country2 > result.full_time_country1 %}res-team--winner{% endif %}">
+      <img class="res-team__flag" src="{{ match.country2.flag_png }}" alt="{{ match.country2.name }} flag" width="72" height="48">
+      <span class="res-team__name">{{ match.country2.name }}</span>
+      <span class="res-team__iso">{{ match.country2.iso3 }}</span>
+      {% if result.full_time_country2 > result.full_time_country1 %}
+      <span class="res-team__winner-tag">Winner</span>
+      {% endif %}
+    </div>
+
+  </section>
+
+  <!-- ============ MATCH DETAILS ============ -->
+  <section class="res-details" aria-label="Match details">
+
+    <div class="res-detail-card reveal">
+      <span class="res-detail-card__icon" aria-hidden="true">⚽</span>
+      <span class="res-detail-card__title">Full Time Score</span>
+      <span class="res-detail-card__value">{{ result.full_time_country1 }} - {{ result.full_time_country2 }}</span>
+    </div>
+
+    <div class="res-detail-card reveal">
+      <span class="res-detail-card__icon" aria-hidden="true">⚽</span>
+      <span class="res-detail-card__title">Half Time Score</span>
+      <span class="res-detail-card__value">{{ result.half_time_country1 }} - {{ result.half_time_country2 }}</span>
+    </div>
+
+    <div class="res-detail-card reveal">
+      <span class="res-detail-card__icon" aria-hidden="true">⚽</span>
+      <span class="res-detail-card__title">First Team To Score</span>
+      <span class="res-detail-card__value">{{ result.first_team_to_score }}</span>
+    </div>
+
+    <div class="res-detail-card reveal">
+      <span class="res-detail-card__icon" aria-hidden="true">⚽</span>
+      <span class="res-detail-card__title">Goal In First 15 Minutes</span>
+      <span class="res-detail-card__value {% if result.goal_in_first_15 %}res-detail-card__value--yes{% else %}res-detail-card__value--no{% endif %}">
+        {% if result.goal_in_first_15 %}YES{% else %}NO{% endif %}
+      </span>
+    </div>
+
+    <div class="res-detail-card reveal">
+      <span class="res-detail-card__icon" aria-hidden="true">⚽</span>
+      <span class="res-detail-card__title">Both Teams Scored</span>
+      <span class="res-detail-card__value {% if result.both_teams_scored %}res-detail-card__value--yes{% else %}res-detail-card__value--no{% endif %}">
+        {% if result.both_teams_scored %}YES{% else %}NO{% endif %}
+      </span>
+    </div>
+
+    <div class="res-detail-card reveal">
+      <span class="res-detail-card__icon" aria-hidden="true">
+        {% if result.winning_method == "Penalty Shootout" %}🥅{% elif result.winning_method == "Extra Time" %}⏱️{% else %}🕘{% endif %}
+      </span>
+      <span class="res-detail-card__title">Winning Method</span>
+      <span class="res-detail-card__value">{{ result.winning_method }}</span>
+    </div>
+
+    <div class="res-detail-card res-detail-card--motm reveal">
+      <span class="res-detail-card__icon" aria-hidden="true">⭐</span>
+      <span class="res-detail-card__title">Man Of The Match</span>
+      <span class="res-detail-card__value">{{ result.man_of_the_match }}</span>
+    </div>
+
+  </section>
+
+  <!-- ============ MATCH STATUS CARD ============ -->
+  <section class="res-status reveal" aria-label="Match status">
+    <div class="res-status__left">
+      <span class="res-status__title">Match Status</span>
+      <span class="res-status__sub" id="resPublishedTime">
+        {% if result.result_published %}Confirmed after final whistle{% else %}Awaiting official confirmation{% endif %}
+      </span>
+    </div>
+    {% if result.result_published %}
+      <span class="res-status__badge res-status__badge--published">Published</span>
+    {% else %}
+      <span class="res-status__badge res-status__badge--pending">Pending</span>
+    {% endif %}
+  </section>
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'script/result.js' %}"></script>
+{% endblock %}

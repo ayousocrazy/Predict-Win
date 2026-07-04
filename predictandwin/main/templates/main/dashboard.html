@@ -122,48 +122,58 @@
 
       <div class="match-grid" id="pastGrid">
         {% for match in past_matches %}
-        <a href="#"
-           class="match-card match-card--past"
-           data-reveal
-           data-stage="{{ match.stage|lower|slugify }}"
-           data-countries="{{ match.country1.name|lower }} {{ match.country2.name|lower }}">
+          {% if match.result and match.result.result_published %}
+            <a href="{% url 'match_result' match.id %}"
+          {% else %}
+            <div
+          {% endif %}
+              class="match-card match-card--past"
+              data-reveal
+              data-stage="{{ match.stage|lower|slugify }}"
+              data-countries="{{ match.country1.name|lower }} {{ match.country2.name|lower }}">
 
-          <div class="match-card__top">
-            <span class="stage-badge stage-badge--muted">{{ match.stage }}</span>
-            <span class="status-chip status-chip--finished">Finished</span>
-          </div>
-
-          <div class="match-card__teams match-card__teams--result">
-            <div class="team">
-              <span class="team__flag-wrap team__flag-wrap--sm">
-                <img class="team__flag" src="{{ match.country1.flag_png }}" alt="{{ match.country1.name }} flag" loading="lazy">
-              </span>
-              <span class="team__name">{{ match.country1.name }}</span>
+            <div class="match-card__top">
+              <span class="stage-badge stage-badge--muted">{{ match.stage }}</span>
+              <span class="status-chip status-chip--finished">Finished</span>
             </div>
 
-            <div class="match-card__score">
-              <span class="score-num">{{ match.country1_score|default:"–" }}</span>
-              <span class="score-sep">:</span>
-              <span class="score-num">{{ match.country2_score|default:"–" }}</span>
+            <div class="match-card__teams match-card__teams--result">
+              <div class="team">
+                <span class="team__flag-wrap team__flag-wrap--sm">
+                  <img class="team__flag" src="{{ match.country1.flag_png }}" alt="{{ match.country1.name }} flag" loading="lazy">
+                </span>
+                <span class="team__name">{{ match.country1.name }}</span>
+              </div>
+
+              <div class="match-card__score">
+                {% if match.result and match.result.result_published %}
+                  <span class="score-num">{{ match.result.full_time_country1 }}</span>
+                  <span class="score-sep">:</span>
+                  <span class="score-num">{{ match.result.full_time_country2 }}</span>
+                {% else %}
+                  <span class="score-num">–</span>
+                  <span class="score-sep">:</span>
+                  <span class="score-num">–</span>
+                {% endif %}
+              </div>
+
+              <div class="team">
+                <span class="team__flag-wrap team__flag-wrap--sm">
+                  <img class="team__flag" src="{{ match.country2.flag_png }}" alt="{{ match.country2.name }} flag" loading="lazy">
+                </span>
+                <span class="team__name">{{ match.country2.name }}</span>
+              </div>
             </div>
 
-            <div class="team">
-              <span class="team__flag-wrap team__flag-wrap--sm">
-                <img class="team__flag" src="{{ match.country2.flag_png }}" alt="{{ match.country2.name }} flag" loading="lazy">
-              </span>
-              <span class="team__name">{{ match.country2.name }}</span>
+            <div class="match-card__bottom match-card__bottom--result">
+              <span class="match-card__datetime">{{ match.kickoff|date:"D, d M" }}</span>
             </div>
-          </div>
-
-          <div class="match-card__bottom match-card__bottom--result">
-            <span class="match-card__datetime">{{ match.kickoff|date:"D, d M" }}</span>
-          </div>
-        </a>
+          {% if match.result and match.result.result_published %}</a>{% else %}</div>{% endif %}
         {% empty %}
-        <div class="empty-state" id="pastEmpty">
-          <div class="empty-state__illo" aria-hidden="true"><i class="ph-fill ph-trophy"></i></div>
-          <p>No matches available.</p>
-        </div>
+          <div class="empty-state" id="pastEmpty">
+            <div class="empty-state__illo" aria-hidden="true"><i class="ph-fill ph-trophy"></i></div>
+            <p>No matches available.</p>
+          </div>
         {% endfor %}
       </div>
     </section>
