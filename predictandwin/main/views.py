@@ -6,10 +6,10 @@ from django.core.mail import send_mail
 from django.conf import settings
 import random
 from django.utils import timezone
+from datetime import timedelta
 from django.http import Http404, JsonResponse
 from django.views.decorators.http import require_GET
 from django.db import transaction, IntegrityError
-from django.core.cache import cache
 
 from .models import User, OTP, Match, Prediction
 from .forms import (
@@ -17,9 +17,11 @@ from .forms import (
     OTPForm,
     LoginForm
 )
+from .tasks import send_otp_email
 
-# django-rq queue for background work (see settings.py + tasks.py below)
-import django_rq
+
+# How long a user must wait before requesting another OTP for the same email.
+OTP_RESEND_COOLDOWN_SECONDS = 60
 
 
 @require_GET
@@ -59,27 +61,37 @@ def signupPage(request):
             if signup_form.is_valid():
                 email = signup_form.cleaned_data["email"]
 
-                # --- Rate limit OTP requests per email (Redis-backed cache) ---
-                # Prevents spam / hammering send_mail and the OTP table.
-                throttle_key = f"otp_throttle:{email.lower()}"
-                if cache.get(throttle_key):
-                    messages.error(
-                        request,
-                        "Please wait a minute before requesting another OTP."
-                    )
-                    return redirect("signup")
-                cache.set(throttle_key, True, timeout=60)  # 1 request / 60s / email
-
                 if User.objects.filter(email=email).exists():
                     messages.error(request, "Email already exists")
                     return redirect("signup")
 
+                # --- Rate limit OTP requests per email (DB-backed) ---
+                # Instead of a Redis throttle key, we just look at the most
+                # recent OTP row for this email and check its age. This is
+                # covered by the same atomic block as the delete/create
+                # below, so a burst of concurrent requests still only lets
+                # one through per cooldown window.
                 otp_code = str(random.randint(100000, 999999))
 
-                # Atomic: clear old OTPs and create new one as one unit,
-                # so a concurrent verify can't read a half-updated state.
                 with transaction.atomic():
-                    OTP.objects.select_for_update().filter(email=email).delete()
+                    recent_otp = (
+                        OTP.objects.select_for_update()
+                        .filter(email=email)
+                        .order_by("-created_at")
+                        .first()
+                    )
+
+                    if recent_otp and (
+                        timezone.now() - recent_otp.created_at
+                        < timedelta(seconds=OTP_RESEND_COOLDOWN_SECONDS)
+                    ):
+                        messages.error(
+                            request,
+                            "Please wait a minute before requesting another OTP."
+                        )
+                        return redirect("signup")
+
+                    OTP.objects.filter(email=email).delete()
                     OTP.objects.create(email=email, code=otp_code)
 
                 request.session["signup_data"] = {
@@ -89,14 +101,11 @@ def signupPage(request):
                     "password": signup_form.cleaned_data["password"],
                 }
 
-                # --- Send email asynchronously via Redis-backed queue ---
-                # This is the single biggest win for concurrency: the request
-                # no longer blocks on an SMTP round trip.
-                django_rq.enqueue(
-                    "main.tasks.send_otp_email",
-                    email,
-                    otp_code,
-                )
+                # Send synchronously now that there's no queue/worker.
+                # If this starts feeling slow, the right fix is to move it
+                # to a background thread or a task runner later, not to
+                # bring caching back for it.
+                send_otp_email(email, otp_code)
 
                 return render(
                     request,
@@ -213,21 +222,12 @@ def logoutPage(request):
 
 @login_required(login_url='login')
 def dashboardPage(request):
-    # Match lists change rarely relative to how often the dashboard is hit,
-    # so a short cache is a cheap win under load.
-    cache_key = "dashboard_matches"
-    cached = cache.get(cache_key)
-
-    if cached is None:
-        upcoming_matches = list(
-            Match.objects.filter(kickoff__gt=timezone.now()).order_by('kickoff')
-        )
-        past_matches = list(
-            Match.objects.filter(kickoff__lt=timezone.now()).order_by('-kickoff')
-        )
-        cache.set(cache_key, (upcoming_matches, past_matches), timeout=30)
-    else:
-        upcoming_matches, past_matches = cached
+    upcoming_matches = Match.objects.filter(
+        kickoff__gt=timezone.now()
+    ).order_by('kickoff')
+    past_matches = Match.objects.filter(
+        kickoff__lt=timezone.now()
+    ).order_by('-kickoff')
 
     context = {
         'upcoming_matches': upcoming_matches,
@@ -347,42 +347,26 @@ def matchPage(request, pk):
 
 @login_required(login_url='login')
 def leaderboardPage(request):
-    # Leaderboard is read constantly and only changes when results are
-    # published, so cache the computed (rank-annotated) list in Redis.
-    cache_key = "leaderboard_data"
-    leaderboard = cache.get(cache_key)
+    users = User.objects.order_by('-points', 'wrong_prediction', 'username')
 
-    if leaderboard is None:
-        users = User.objects.order_by('-points', 'wrong_prediction', 'username')
+    leaderboard = []
+    current_rank = 0
+    previous_key = None
 
-        leaderboard = []
-        current_rank = 0
-        previous_key = None
+    for user in users:
+        key = (user.points, user.wrong_prediction)
+        if key != previous_key:
+            current_rank += 1
+            previous_key = key
 
-        for user in users:
-            key = (user.points, user.wrong_prediction)
-            if key != previous_key:
-                current_rank += 1
-                previous_key = key
-
-            leaderboard.append({
-                "rank": current_rank,
-                "username": user.username,
-                "full_name": user.full_name,
-                "points": user.points,
-                "wrong_prediction": user.wrong_prediction,
-                "user_id": user.id,  # used below instead of caching per-request state
-            })
-
-        # Cache for 60s — invalidate immediately (see note) whenever points
-        # are updated, e.g. in the view/task that publishes match results:
-        #   cache.delete("leaderboard_data")
-        cache.set(cache_key, leaderboard, timeout=60)
-
-    # is_current_user depends on the requesting user, so it's computed
-    # per-request against the cached, user-agnostic leaderboard data.
-    for entry in leaderboard:
-        entry["is_current_user"] = entry["user_id"] == request.user.id
+        leaderboard.append({
+            "rank": current_rank,
+            "username": user.username,
+            "full_name": user.full_name,
+            "points": user.points,
+            "wrong_prediction": user.wrong_prediction,
+            "is_current_user": user.id == request.user.id,
+        })
 
     context = {
         "leaderboard": leaderboard,

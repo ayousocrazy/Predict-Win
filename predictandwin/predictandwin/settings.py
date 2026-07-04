@@ -25,7 +25,6 @@ INSTALLED_APPS = [
 
     'main',
     'api',
-    "django_rq"
 ]
 
 MIDDLEWARE = [
@@ -152,28 +151,3 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
-REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": REDIS_URL,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "REDIS_CLIENT_KWARGS": {"protocol": 2},
-        },
-    }
-}
-
-redis_url = urlparse(os.environ.get("REDIS_URL", "redis://localhost:6379"))
-
-RQ_QUEUES = {
-    "default": {
-        "HOST": redis_url.hostname,
-        "PORT": redis_url.port,
-        "DB": 0,
-        "PASSWORD": redis_url.password,
-        "DEFAULT_TIMEOUT": 360,
-    },
-}
