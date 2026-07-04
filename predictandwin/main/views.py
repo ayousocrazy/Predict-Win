@@ -304,10 +304,31 @@ def matchPage(request, pk):
         messages.success(request, "Prediction submitted successfully.")
         return redirect("match", pk=match.id)
 
+    existing_prediction_data = None
+    if existing_prediction:
+        existing_prediction_data = {
+            "winner": existing_prediction.predicted_winner or None,
+            "full_time_country1": existing_prediction.full_time_country1,
+            "full_time_country2": existing_prediction.full_time_country2,
+            "half_time_country1": existing_prediction.half_time_country1,
+            "half_time_country2": existing_prediction.half_time_country2,
+            "goals_country1": existing_prediction.goals_country1,
+            "goals_country2": existing_prediction.goals_country2,
+            "both_teams_to_score": (
+                "yes" if existing_prediction.both_teams_scored is True
+                else "no" if existing_prediction.both_teams_scored is False
+                else None
+            ),
+            "first_team_to_score": existing_prediction.first_team_to_score or None,
+            "winning_method": existing_prediction.winning_method or None,
+            "man_of_the_match": existing_prediction.man_of_the_match or None,
+        }
+
     context = {
         "match": match,
         "already_predicted": already_predicted,
         "existing_prediction": existing_prediction,
+        "existing_prediction_data": existing_prediction_data,
     }
 
     return render(request, "main/predict.html", context)

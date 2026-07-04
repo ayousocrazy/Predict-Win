@@ -7,6 +7,7 @@
 
 {% block content %}
 <div class="page">
+  {{ existing_prediction_data|json_script:"existing-prediction-data" }}
   <!-- Already-predicted banner, hidden unless the page (or JS demo lock) says so -->
   <div class="locked-banner" id="lockedBanner" hidden>
     <span class="locked-banner-icon">✓</span>

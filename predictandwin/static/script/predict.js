@@ -87,6 +87,13 @@ const STEP_MAP = {
   'goals-bra': 'goalsBra'
 };
 
+// Reverse of STEP_MAP: stateKey -> DOM id, used when pre-filling from
+// an existing prediction.
+const STATE_TO_STEP_ID = {};
+Object.keys(STEP_MAP).forEach((domId) => {
+  STATE_TO_STEP_ID[STEP_MAP[domId]] = domId;
+});
+
 const MAX_STEP = 20;
 
 /* =========================================================
@@ -193,6 +200,25 @@ function applySelection(group, value) {
   }
 }
 
+// Visually marks the matching button as selected without firing a click
+// (used for pre-filling from an existing prediction).
+function selectButtonByValue(group, value) {
+
+  if (value === null || value === undefined || value === '') return;
+
+  document
+    .querySelectorAll('.select-btn[data-group="' + group + '"]')
+    .forEach((sib) => {
+      sib.classList.remove('is-selected');
+    });
+
+  const btn = document.querySelector(
+    '.select-btn[data-group="' + group + '"][data-value="' + value + '"]'
+  );
+
+  if (btn) btn.classList.add('is-selected');
+}
+
 /* =========================================================
    RIPPLE EFFECT
    ========================================================= */
@@ -294,6 +320,12 @@ function initSteppers() {
   });
 }
 
+// Sets a stepper's displayed number directly (used for pre-filling).
+function setStepperDisplay(targetId, value) {
+  const el = document.getElementById(targetId);
+  if (el) el.textContent = value;
+}
+
 /* =========================================================
    MOTM INPUT
    ========================================================= */
@@ -312,6 +344,101 @@ function initMotmInput() {
     updateProgress();
     updateSubmitState();
   });
+}
+
+/* =========================================================
+   EXISTING PREDICTION (pre-fill on load)
+   ========================================================= */
+
+function readExistingPredictionData() {
+
+  const el = document.getElementById('existing-prediction-data');
+
+  if (!el) return null;
+
+  try {
+    const parsed = JSON.parse(el.textContent);
+    return parsed || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function applyExistingPrediction(data) {
+
+  if (!data) return;
+
+  // Winner
+  if (data.winner) {
+    state.winner = data.winner;
+    selectButtonByValue('winner', data.winner);
+  }
+
+  // Full time score
+  if (data.full_time_country1 !== null && data.full_time_country1 !== undefined) {
+    state.ftArg = parseInt(data.full_time_country1, 10) || 0;
+    interacted.ft = true;
+  }
+  if (data.full_time_country2 !== null && data.full_time_country2 !== undefined) {
+    state.ftBra = parseInt(data.full_time_country2, 10) || 0;
+    interacted.ft = true;
+  }
+
+  // Half time score
+  if (data.half_time_country1 !== null && data.half_time_country1 !== undefined) {
+    state.htArg = parseInt(data.half_time_country1, 10) || 0;
+    interacted.ht = true;
+  }
+  if (data.half_time_country2 !== null && data.half_time_country2 !== undefined) {
+    state.htBra = parseInt(data.half_time_country2, 10) || 0;
+    interacted.ht = true;
+  }
+
+  // Goals scored
+  if (data.goals_country1 !== null && data.goals_country1 !== undefined) {
+    state.goalsArg = parseInt(data.goals_country1, 10) || 0;
+    interacted.goals = true;
+  }
+  if (data.goals_country2 !== null && data.goals_country2 !== undefined) {
+    state.goalsBra = parseInt(data.goals_country2, 10) || 0;
+    interacted.goals = true;
+  }
+
+  // Both teams to score
+  if (data.both_teams_to_score) {
+    state.btts = data.both_teams_to_score;
+    selectButtonByValue('btts', data.both_teams_to_score);
+  }
+
+  // First team to score
+  if (data.first_team_to_score) {
+    state.firstScorer = data.first_team_to_score;
+    selectButtonByValue('first-scorer', data.first_team_to_score);
+  }
+
+  // Winning method
+  if (data.winning_method) {
+    state.method = data.winning_method;
+    selectButtonByValue('method', data.winning_method);
+  }
+
+  // Man of the match
+  if (data.man_of_the_match) {
+    state.motm = data.man_of_the_match;
+    const motmInput = document.getElementById('motmInput');
+    if (motmInput) motmInput.value = data.man_of_the_match;
+  }
+
+  // Push everything into the visible stepper numbers + hidden inputs
+  Object.keys(STATE_TO_STEP_ID).forEach((stateKey) => {
+    setStepperDisplay(STATE_TO_STEP_ID[stateKey], state[stateKey]);
+    syncHiddenInput(stateKey);
+  });
+
+  syncHiddenInput('winner');
+  syncHiddenInput('btts');
+  syncHiddenInput('firstScorer');
+  syncHiddenInput('method');
 }
 
 /* =========================================================
@@ -430,6 +557,8 @@ function updateSubmitState() {
 
   if (!submitBtn) return;
 
+  if (isLocked()) return; // don't fight with lockForm's own disabling
+
   const hasAnyPrediction =
 
     state.winner ||
@@ -522,6 +651,9 @@ function initCountdown() {
 function lockForm(reason) {
 
   document.body.dataset.locked = 'true';
+
+  const form = document.getElementById('predictionForm');
+  if (form) form.dataset.locked = 'true';
 
   document
     .querySelectorAll(
@@ -663,6 +795,14 @@ function initBackLink() {
    ========================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // Pre-fill from a saved prediction BEFORE locking, so the lock step
+  // disables inputs that already show the right values.
+  const existingData = readExistingPredictionData();
+
+  if (existingData) {
+    applyExistingPrediction(existingData);
+  }
 
   initLockCheck();
 
