@@ -56,23 +56,17 @@ const LABELS = {
 };
 
 const HIDDEN_INPUT_IDS = {
-
   winner: 'winnerInput',
-
   ftArg: 'ftArgInput',
   ftBra: 'ftBraInput',
-
   htArg: 'htArgInput',
   htBra: 'htBraInput',
-
   goalsArg: 'goalsArgInput',
   goalsBra: 'goalsBraInput',
-
   btts: 'bttsInput',
-
   firstScorer: 'firstScorerInput',
-
-  method: 'methodInput'
+  method: 'methodInput',
+  motm: 'motmHiddenInput'
 };
 
 const STEP_MAP = {
@@ -339,7 +333,7 @@ function initMotmInput() {
   input.addEventListener('input', () => {
 
     state.motm = input.value.trim();
-
+    syncHiddenInput('motm');
     updateSummary();
     updateProgress();
     updateSubmitState();
@@ -427,6 +421,7 @@ function applyExistingPrediction(data) {
     state.motm = data.man_of_the_match;
     const motmInput = document.getElementById('motmInput');
     if (motmInput) motmInput.value = data.man_of_the_match;
+    syncHiddenInput('motm');
   }
 
   // Push everything into the visible stepper numbers + hidden inputs
