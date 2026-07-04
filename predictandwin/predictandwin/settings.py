@@ -166,9 +166,14 @@ CACHES = {
     }
 }
 
+redis_url = urlparse(os.environ.get("REDIS_URL", "redis://localhost:6379"))
+
 RQ_QUEUES = {
     "default": {
-        "URL": REDIS_URL,
-        "DEFAULT_TIMEOUT": 30,
-    }
+        "HOST": redis_url.hostname,
+        "PORT": redis_url.port,
+        "DB": 0,
+        "PASSWORD": redis_url.password,
+        "DEFAULT_TIMEOUT": 360,
+    },
 }
