@@ -88,6 +88,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=False
     )
     points = models.DecimalField(max_digits=10, decimal_places=1, default=0)
+    points_of_rd16 = models.DecimalField(max_digits=10, decimal_places=1, default=0)
     wrong_prediction = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(
         default=True

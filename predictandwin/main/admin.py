@@ -12,6 +12,7 @@ class CustomUserAdmin(UserAdmin):
         "email",
         "email_verified",
         "points",
+        "points_of_rd16",
         "is_staff",
         "is_active",
         "created_at",
@@ -56,6 +57,7 @@ class CustomUserAdmin(UserAdmin):
         ("Points", {
             "fields": (
                 "points",
+                "points_of_rd16",
             )
         }),
         ("Permissions", {
