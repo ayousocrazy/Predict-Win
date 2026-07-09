@@ -237,6 +237,23 @@ def dashboardPage(request):
 
     return render(request, 'main/dashboard.html', context)
 
+def _parse_int(value):
+    """POST values arrive as strings ('' for unset). Returns int or None."""
+    if value in (None, ""):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_yes_no(value):
+    """'yes'/'no' -> True/False, anything else -> None."""
+    if value == "yes":
+        return True
+    if value == "no":
+        return False
+    return None
 
 @login_required(login_url='login')
 def matchPage(request, pk):
@@ -270,12 +287,27 @@ def matchPage(request, pk):
         winning_method = request.POST.get("winning_method")
         man_of_the_match = request.POST.get("man_of_the_match")
 
+        # --- new fields ---
+        goals_first_half = request.POST.get("goals_first_half")
+        total_goals = request.POST.get("total_goals")
+        goal_in_first_15 = request.POST.get("goal_in_first_15")
+        red_card = request.POST.get("red_card")
+        yellow_cards = request.POST.get("yellow_cards")
+        penalty_awarded = request.POST.get("penalty_awarded")
+        own_goal = request.POST.get("own_goal")
+        total_corners = request.POST.get("total_corners")
+        team_most_corners = request.POST.get("team_most_corners")
+        winning_margin = request.POST.get("winning_margin")
+
         has_prediction = any([
             winner, full_time_country1, full_time_country2,
             half_time_country1, half_time_country2,
             goals_country1, goals_country2,
             both_teams_to_score, first_team_to_score,
             winning_method, man_of_the_match,
+            goals_first_half, total_goals, goal_in_first_15,
+            red_card, yellow_cards, penalty_awarded, own_goal,
+            total_corners, team_most_corners, winning_margin,
         ])
 
         if not has_prediction:
@@ -283,30 +315,36 @@ def matchPage(request, pk):
             return redirect("match", pk=match.id)
 
         # IMPORTANT: this requires a unique_together = ('user', 'match')
-        # constraint on the Prediction model (migration needed — see note
-        # below the file). The check above is just a fast-path UX check;
-        # the DB constraint is what actually prevents duplicates under
-        # concurrent requests (double-click, two tabs, etc).
+        # constraint on the Prediction model. The check above is just a
+        # fast-path UX check; the DB constraint is what actually prevents
+        # duplicates under concurrent requests (double-click, two tabs, etc).
         try:
             with transaction.atomic():
                 Prediction.objects.create(
                     user=request.user,
                     match=match,
                     predicted_winner=winner if winner else "",
-                    full_time_country1=full_time_country1 if full_time_country1 else None,
-                    full_time_country2=full_time_country2 if full_time_country2 else None,
-                    half_time_country1=half_time_country1 if half_time_country1 else None,
-                    half_time_country2=half_time_country2 if half_time_country2 else None,
-                    goals_country1=goals_country1 if goals_country1 else None,
-                    goals_country2=goals_country2 if goals_country2 else None,
-                    both_teams_scored=(
-                        True if both_teams_to_score == "yes"
-                        else False if both_teams_to_score == "no"
-                        else None
-                    ),
+                    full_time_country1=_parse_int(full_time_country1),
+                    full_time_country2=_parse_int(full_time_country2),
+                    half_time_country1=_parse_int(half_time_country1),
+                    half_time_country2=_parse_int(half_time_country2),
+                    goals_country1=_parse_int(goals_country1),
+                    goals_country2=_parse_int(goals_country2),
+                    both_teams_scored=_parse_yes_no(both_teams_to_score),
                     first_team_to_score=first_team_to_score if first_team_to_score else "",
                     winning_method=winning_method if winning_method else "",
                     man_of_the_match=man_of_the_match if man_of_the_match else "",
+                    # new fields
+                    predicted_goals_first_half=_parse_int(goals_first_half),
+                    predicted_total_goals=_parse_int(total_goals),
+                    goal_in_first_15=_parse_yes_no(goal_in_first_15),
+                    predicted_red_card=_parse_yes_no(red_card),
+                    predicted_yellow_cards=_parse_int(yellow_cards),
+                    predicted_penalty_awarded=_parse_yes_no(penalty_awarded),
+                    predicted_own_goal=_parse_yes_no(own_goal),
+                    predicted_total_corners=_parse_int(total_corners),
+                    predicted_team_most_corners=team_most_corners if team_most_corners else "",
+                    predicted_winning_margin=winning_margin if winning_margin else "",
                 )
         except IntegrityError:
             messages.error(request, "You already predicted this match.")
@@ -333,6 +371,34 @@ def matchPage(request, pk):
             "first_team_to_score": existing_prediction.first_team_to_score or None,
             "winning_method": existing_prediction.winning_method or None,
             "man_of_the_match": existing_prediction.man_of_the_match or None,
+
+            # new fields
+            "goals_first_half": existing_prediction.predicted_goals_first_half,
+            "total_goals": existing_prediction.predicted_total_goals,
+            "goal_in_first_15": (
+                "yes" if existing_prediction.goal_in_first_15 is True
+                else "no" if existing_prediction.goal_in_first_15 is False
+                else None
+            ),
+            "red_card": (
+                "yes" if existing_prediction.predicted_red_card is True
+                else "no" if existing_prediction.predicted_red_card is False
+                else None
+            ),
+            "yellow_cards": existing_prediction.predicted_yellow_cards,
+            "penalty_awarded": (
+                "yes" if existing_prediction.predicted_penalty_awarded is True
+                else "no" if existing_prediction.predicted_penalty_awarded is False
+                else None
+            ),
+            "own_goal": (
+                "yes" if existing_prediction.predicted_own_goal is True
+                else "no" if existing_prediction.predicted_own_goal is False
+                else None
+            ),
+            "total_corners": existing_prediction.predicted_total_corners,
+            "team_most_corners": existing_prediction.predicted_team_most_corners or None,
+            "winning_margin": existing_prediction.predicted_winning_margin or None,
         }
 
     context = {
@@ -374,25 +440,3 @@ def leaderboardPage(request):
         'active_page': "leaderboard",
     }
     return render(request, 'main/leaderboard.html', context)
-
-
-def match_result(request, match_id):
-    match = get_object_or_404(
-        Match.objects.select_related(
-            "country1",
-            "country2",
-            "result",
-            "result__first_team_to_score",
-        ),
-        pk=match_id,
-    )
-    result = getattr(match, "result", None)
-
-    if result is None or not result.result_published:
-        raise Http404("Result not available yet.")
-
-    context = {
-        "match": match,
-        "result": result,
-    }
-    return render(request, "main/result.html", context)

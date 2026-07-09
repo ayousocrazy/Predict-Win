@@ -122,11 +122,7 @@
 
       <div class="match-grid" id="pastGrid">
         {% for match in past_matches %}
-          {% if match.result and match.result.result_published %}
-            <a href="{% url 'match_result' match.id %}"
-          {% else %}
             <div
-          {% endif %}
               class="match-card match-card--past"
               data-reveal
               data-stage="{{ match.stage|lower|slugify }}"
@@ -168,7 +164,7 @@
             <div class="match-card__bottom match-card__bottom--result">
               <span class="match-card__datetime">{{ match.kickoff|date:"D, d M" }}</span>
             </div>
-          {% if match.result and match.result.result_published %}</a>{% else %}</div>{% endif %}
+          </div>
         {% empty %}
           <div class="empty-state" id="pastEmpty">
             <div class="empty-state__illo" aria-hidden="true"><i class="ph-fill ph-trophy"></i></div>
