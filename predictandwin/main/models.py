@@ -87,12 +87,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email_verified = models.BooleanField(
         default=False
     )
-    points = models.PositiveIntegerField(
-        default=0
-    )
-    wrong_prediction = models.PositiveIntegerField(
-        default=0
-    )
+    points = models.DecimalField(max_digits=10, decimal_places=1, default=0)
+    wrong_prediction = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(
         default=True
     )
@@ -237,6 +233,17 @@ class Result(models.Model):
         blank=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    goals_first_half = models.PositiveSmallIntegerField(default=0)  # combined, both teams
+    red_card = models.BooleanField(default=False)
+    yellow_cards = models.PositiveSmallIntegerField(default=0)
+    penalty_awarded = models.BooleanField(default=False)
+    own_goal = models.BooleanField(default=False)
+    total_corners = models.PositiveSmallIntegerField(default=0)
+    team_most_corners = models.ForeignKey(
+        Country, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="+"
+    )
+
     result_published = models.BooleanField(default=False)
     points_awarded = models.BooleanField(default=False)
 
@@ -305,7 +312,20 @@ class Prediction(models.Model):
         max_length=100,
         blank=True
     )
-    points_earned = models.PositiveIntegerField(default=0)
+    predicted_goals_first_half = models.PositiveSmallIntegerField(null=True, blank=True)
+    predicted_total_goals = models.PositiveSmallIntegerField(null=True, blank=True)
+    predicted_red_card = models.BooleanField(null=True, blank=True)
+    predicted_yellow_cards = models.PositiveSmallIntegerField(null=True, blank=True)
+    predicted_penalty_awarded = models.BooleanField(null=True, blank=True)
+    predicted_own_goal = models.BooleanField(null=True, blank=True)
+    predicted_total_corners = models.PositiveSmallIntegerField(null=True, blank=True)
+    predicted_team_most_corners = models.CharField(max_length=20, blank=True)  # team name or "draw"
+    predicted_winning_margin = models.CharField(
+        max_length=2,
+        choices=[("1", "1 goal"), ("2", "2 goals"), ("3", "3+ goals")],
+        blank=True,
+    )
+    points_earned = models.DecimalField(max_digits=8, decimal_places=1, default=0)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
