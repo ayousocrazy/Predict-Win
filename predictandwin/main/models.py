@@ -331,6 +331,7 @@ class Prediction(models.Model):
 
     class Meta:
         unique_together = ('user', 'match')
+        ordering = ['user', '-submitted_at']
 
     def __str__(self):
         return f"{self.user} - {self.match}"
