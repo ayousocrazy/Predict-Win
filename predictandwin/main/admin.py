@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from .models import User, OTP, Match, Prediction, Result
 from .scoring import publish_result_and_award_points
 
+
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     model = User
@@ -78,9 +79,7 @@ class CustomUserAdmin(UserAdmin):
     )
     add_fieldsets = (
         (None, {
-            "classes": (
-                "wide",
-            ),
+            "classes": ("wide",),
             "fields": (
                 "username",
                 "full_name",
@@ -92,6 +91,7 @@ class CustomUserAdmin(UserAdmin):
             ),
         }),
     )
+
 
 @admin.register(OTP)
 class OTPAdmin(admin.ModelAdmin):
@@ -108,17 +108,40 @@ class OTPAdmin(admin.ModelAdmin):
         "-created_at",
     )
 
+
 admin.site.register(Match)
-admin.site.register(Prediction)
+
+
+@admin.register(Prediction)
+class PredictionAdmin(admin.ModelAdmin):
+    list_display = "__str__", "match", "user"
+
+    def _allowed(self, request):
+        return request.user.username == "sth3ayush"
+
+    def has_module_permission(self, request):
+        return self._allowed(request)
+
+    def has_view_permission(self, request, obj=None):
+        return self._allowed(request)
+
+    def has_add_permission(self, request):
+        return self._allowed(request)
+
+    def has_change_permission(self, request, obj=None):
+        return self._allowed(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self._allowed(request)
+
 
 @admin.action(description="Publish result & award points")
 def publish_and_score(modeladmin, request, queryset):
     for result in queryset:
         publish_result_and_award_points(result)
 
+
+@admin.register(Result)
 class ResultAdmin(admin.ModelAdmin):
     list_display = ["match", "result_published", "points_awarded"]
     actions = [publish_and_score]
-
-
-admin.site.register(Result, ResultAdmin)
