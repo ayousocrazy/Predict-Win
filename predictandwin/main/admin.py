@@ -110,29 +110,29 @@ class OTPAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Match)
+admin.site.register(Prediction)
 
+# @admin.register(Prediction)
+# class PredictionAdmin(admin.ModelAdmin):
+#     list_display = "__str__", "match", "user"
 
-@admin.register(Prediction)
-class PredictionAdmin(admin.ModelAdmin):
-    list_display = "__str__", "match", "user"
+#     def _allowed(self, request):
+#         return request.user.username == "sth3ayush"
 
-    def _allowed(self, request):
-        return request.user.username == "sth3ayush"
+#     def has_module_permission(self, request):
+#         return self._allowed(request)
 
-    def has_module_permission(self, request):
-        return self._allowed(request)
+#     def has_view_permission(self, request, obj=None):
+#         return self._allowed(request)
 
-    def has_view_permission(self, request, obj=None):
-        return self._allowed(request)
+#     def has_add_permission(self, request):
+#         return self._allowed(request)
 
-    def has_add_permission(self, request):
-        return self._allowed(request)
+#     def has_change_permission(self, request, obj=None):
+#         return self._allowed(request)
 
-    def has_change_permission(self, request, obj=None):
-        return self._allowed(request)
-
-    def has_delete_permission(self, request, obj=None):
-        return self._allowed(request)
+#     def has_delete_permission(self, request, obj=None):
+#         return self._allowed(request)
 
 
 @admin.action(description="Publish result & award points")
