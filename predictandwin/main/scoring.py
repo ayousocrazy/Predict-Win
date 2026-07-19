@@ -4,7 +4,6 @@ from django.db.models import F
 
 from .models import Prediction
 
-# (correct, wrong-deduction) per category
 POINTS = {
     "winner":              (Decimal("5"),    Decimal("2.5")),
     "btts":                (Decimal("5"),    Decimal("2.5")),
@@ -26,9 +25,95 @@ POINTS = {
     "winning_margin":      (Decimal("10"),   Decimal("5")),
 }
 
+NO_NEGATIVE_STAGES = set()
+
+LEGACY_STAGES = {"GRP", "R32", "R16"}
+
+
+def score_prediction_r16_legacy(prediction, result):
+    points = 0
+    wrong = 0
+
+    if result.full_time_country1 > result.full_time_country2:
+        actual_winner = result.match.country1.name
+    elif result.full_time_country2 > result.full_time_country1:
+        actual_winner = result.match.country2.name
+    else:
+        actual_winner = "draw"
+
+    # Match Winner — 20
+    if prediction.predicted_winner:
+        if prediction.predicted_winner == actual_winner:
+            points += 20
+        else:
+            wrong += 1
+
+    # Full Time Score — 20
+    if prediction.full_time_country1 is not None and prediction.full_time_country2 is not None:
+        if (prediction.full_time_country1 == result.full_time_country1
+                and prediction.full_time_country2 == result.full_time_country2):
+            points += 20
+        else:
+            wrong += 1
+
+    # Half Time Score — 10
+    if prediction.half_time_country1 is not None and prediction.half_time_country2 is not None:
+        if (prediction.half_time_country1 == result.half_time_country1
+                and prediction.half_time_country2 == result.half_time_country2):
+            points += 10
+        else:
+            wrong += 1
+
+    # Goals Scored — 5 + 5, each judged independently
+    if prediction.goals_country1 is not None:
+        if prediction.goals_country1 == result.full_time_country1:
+            points += 5
+        else:
+            wrong += 1
+
+    if prediction.goals_country2 is not None:
+        if prediction.goals_country2 == result.full_time_country2:
+            points += 5
+        else:
+            wrong += 1
+
+    # Both Teams to Score — 10
+    if prediction.both_teams_scored is not None:
+        if prediction.both_teams_scored == result.both_teams_scored:
+            points += 10
+        else:
+            wrong += 1
+
+    # First Team to Score — 10
+    if prediction.first_team_to_score:
+        actual_first_scorer = (
+            result.first_team_to_score.name if result.first_team_to_score else "nogoal"
+        )
+        if prediction.first_team_to_score == actual_first_scorer:
+            points += 10
+        else:
+            wrong += 1
+
+    # Winning Method — 10 (skip on a draw, method is meaningless there)
+    if actual_winner != "draw" and prediction.winning_method:
+        if prediction.winning_method == result.winning_method:
+            points += 10
+        else:
+            wrong += 1
+
+    # Man of the Match — 15
+    predicted_motm = prediction.man_of_the_match.strip().lower()
+    actual_motm = result.man_of_the_match.strip().lower()
+    if predicted_motm:
+        if predicted_motm == actual_motm:
+            points += 15
+        else:
+            wrong += 1
+
+    return points, wrong
+
 
 def _winning_margin(goals_a, goals_b):
-    """Returns '1', '2', '3', or None if it's a draw (margin not scored)."""
     diff = abs(goals_a - goals_b)
     if diff == 0:
         return None
@@ -39,24 +124,24 @@ def _winning_margin(goals_a, goals_b):
     return "3"
 
 
-def score_prediction(prediction, result):
-    """
-    Returns (net_points, wrong_count).
-    net_points can be negative if a user made many wrong calls with no correct ones.
-    """
+def score_prediction_new(prediction, result):
     net = Decimal("0")
     wrong = 0
+
+    no_negative = result.match.stage in NO_NEGATIVE_STAGES
 
     def grade(category, predicted_ok, is_correct):
         nonlocal net, wrong
         if not predicted_ok:
-            return  # user didn't make this prediction — skip entirely, no penalty
+            return
         correct_pts, wrong_pts = POINTS[category]
         if is_correct:
             net += correct_pts
         else:
-            net -= wrong_pts
             wrong += 1
+            if not no_negative:
+                net -= wrong_pts
+            # else: R16+ -> wrong prediction costs 0 points
 
     if result.full_time_country1 > result.full_time_country2:
         actual_winner = result.match.country1.name
@@ -163,6 +248,12 @@ def score_prediction(prediction, result):
               prediction.predicted_winning_margin == actual_margin)
 
     return net, wrong
+
+
+def score_prediction(prediction, result):
+    if result.match.stage in LEGACY_STAGES:
+        return score_prediction_r16_legacy(prediction, result)
+    return score_prediction_new(prediction, result)
 
 
 def publish_result_and_award_points(result):
